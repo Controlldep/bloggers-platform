@@ -1,2 +1,6 @@
 
-export  const postsRepositories = []
+export  const postsArray = []
+
+export const  postsRepository = {
+
+}
