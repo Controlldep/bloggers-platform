@@ -1,20 +1,14 @@
 import {blogsModel} from "../model/blogsModel";
 import {blogsCollection, client} from "../db/mongoDb";
 import { ObjectId } from "mongodb";
+import {blogViewModel} from "../DTO/blogViewModel";
 
 
 export const  blogsRepository = {
     async getAllBlogs() {
         const blogs = await blogsCollection.find({}).toArray();
 
-        return blogs.map(blog => ({
-            id: blog._id.toString(),
-            name: blog.name,
-            description: blog.description,
-            websiteUrl: blog.websiteUrl,
-            createdAt: blog.createdAt,
-            isMembership: blog.isMembership,
-        }));
+        return blogs
     },
 
     async createBlogs(blogs:blogsModel) {
@@ -27,14 +21,7 @@ export const  blogsRepository = {
 
         }
         const result = await blogsCollection.insertOne(blog)
-        return {
-            id: result.insertedId.toString(),
-            name: blog.name,
-            description: blog.description,
-            websiteUrl: blog.websiteUrl,
-            createdAt: blog.createdAt,
-            isMembership: blog.isMembership,
-        };
+        return result
     },
 
     async getByIdBlogs(id:string) {
@@ -42,14 +29,7 @@ export const  blogsRepository = {
         if(!findBlogs) {
             return  null
         }
-        return {
-            id: findBlogs._id.toString(),
-            name: findBlogs.name,
-            description: findBlogs.description,
-            websiteUrl: findBlogs.websiteUrl,
-            createdAt: findBlogs.createdAt,
-            isMembership: findBlogs.isMembership,
-        };
+        return blogViewModel(findBlogs)
     },
 
     async updateBlog(id: string, data: Partial<blogsModel>)  {
