@@ -1,7 +1,8 @@
 
 export type blogsModel = {
-    id: string,
     name: string,
     description: string,
-    websiteUrl:string
+    websiteUrl:string,
+    createdAt: string,
+    isMembership: boolean,
 }

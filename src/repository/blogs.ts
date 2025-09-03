@@ -1,51 +1,72 @@
 import {blogsModel} from "../model/blogsModel";
+import {blogsCollection, client} from "../db/mongoDb";
+import { ObjectId } from "mongodb";
 
-
-export  const blogsArray:blogsModel[] = []
 
 export const  blogsRepository = {
-    getAllBlogs() {
-        return blogsArray
+    async getAllBlogs() {
+        const blogs = await blogsCollection.find({}).toArray();
+
+        return blogs.map(blog => ({
+            id: blog._id.toString(),
+            name: blog.name,
+            description: blog.description,
+            websiteUrl: blog.websiteUrl,
+            createdAt: blog.createdAt,
+            isMembership: blog.isMembership,
+        }));
     },
 
-    createBlogs(blogs:blogsModel): blogsModel {
+    async createBlogs(blogs:blogsModel) {
         const blog:blogsModel = {
-            id: blogs.id,
             name: blogs.name,
             description: blogs.description,
-            websiteUrl: blogs.websiteUrl
+            websiteUrl: blogs.websiteUrl,
+            createdAt: new Date().toISOString(),
+            isMembership: false,
+
         }
-        blogsArray.push(blog)
-        return blog
+        const result = await blogsCollection.insertOne(blog)
+        return {
+            id: result.insertedId.toString(),
+            name: blog.name,
+            description: blog.description,
+            websiteUrl: blog.websiteUrl,
+            createdAt: blog.createdAt,
+            isMembership: blog.isMembership,
+        };
     },
 
-    getByIdBlogs(id:string) {
-        const findBlogs = blogsArray.find(b => b.id === id)
-        return findBlogs
+    async getByIdBlogs(id:string) {
+        const findBlogs = await blogsCollection.findOne({ _id: new ObjectId(id) })
+        if(!findBlogs) {
+            return  null
+        }
+        return {
+            id: findBlogs._id.toString(),
+            name: findBlogs.name,
+            description: findBlogs.description,
+            websiteUrl: findBlogs.websiteUrl,
+            createdAt: findBlogs.createdAt,
+            isMembership: findBlogs.isMembership,
+        };
     },
 
-    updateBlog(id:string , blogs:blogsModel): blogsModel | undefined {
-        let updateBlogs = blogsArray.find(b => b.id === id)
-        if(updateBlogs) {
-            Object.assign(updateBlogs , {
-                id: blogs.id,
-                name: blogs.name,
-                description: blogs.description,
-                websiteUrl: blogs.websiteUrl
-            })
-        }else {
-            return undefined
-        }
-        return updateBlogs
+    async updateBlog(id: string, data: Partial<blogsModel>)  {
+        let result = await blogsCollection.updateOne(
+            {_id: new ObjectId(id)},
+            {$set: data}
+        )
+        return result.matchedCount === 1;
     },
 
-    deleteBlog(id:string) {
-        const deleteBlog = blogsArray.findIndex(b => b.id === id)
-        if(deleteBlog !== 1) {
-            blogsArray.splice(deleteBlog , 1)
-            return true
-        }else  {
-            return false
-        }
+    async deleteBlog(id:string) {
+        const deleteBlog = await blogsCollection.deleteOne({_id: new ObjectId(id)})
+        return deleteBlog.deletedCount === 1;
+    },
+
+    async deleteAllBlogs() {
+        const deletedAll = await blogsCollection.deleteMany({})
+        return deletedAll.deletedCount;
     }
 }

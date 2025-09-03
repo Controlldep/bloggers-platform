@@ -1,9 +1,14 @@
 import { Request, Response } from 'express';
 import {blogsRepository} from "../repository/blogs";
-import {blogsModel} from "../model/blogsModel";
+import {blogsInputValidation} from "../middleware/blogsMiddleware/blogsMiddlewareValidation";
 
-export function updateBlogHandler(req: Request, res: Response) {
-    const updateBlog:blogsModel | undefined = blogsRepository.updateBlog(req.params.id , req.body)
+export async function updateBlogHandler(req: Request, res: Response) {
+    const errors = blogsInputValidation(req.body)
+    if (errors.length > 0) {
+        res.status(400).send({ errorsMessages: errors });
+        return;
+    }
+    const updateBlog = await blogsRepository.updateBlog(req.params.id , req.body)
     if(updateBlog) {
         res.sendStatus(204)
     }else {

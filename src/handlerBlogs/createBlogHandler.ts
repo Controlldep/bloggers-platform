@@ -1,8 +1,14 @@
-import { Request, Response } from 'express';
+import { Request, Response , NextFunction} from 'express';
 import {blogsRepository} from "../repository/blogs";
+import {blogsInputValidation} from "../middleware/blogsMiddleware/blogsMiddlewareValidation";
 
-export function createBlogHandler(req: Request, res: Response) {
-    const createBlog = blogsRepository.createBlogs(req.body)
+export async function createBlogHandler(req: Request, res: Response , next: NextFunction) {
+    const errors = blogsInputValidation(req.body)
+    if (errors.length > 0) {
+        res.status(400).send({ errorsMessages: errors });
+        return;
+    }
+    const createBlog = await blogsRepository.createBlogs(req.body)
     if(createBlog) {
         res.status(201).send(createBlog)
     }else {
