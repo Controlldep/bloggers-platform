@@ -1,6 +1,6 @@
 import { Request, Response , NextFunction} from 'express';
-import {blogsRepository} from "../repository/blogs";
 import {blogsInputValidation} from "../middleware/blogsMiddleware/blogsMiddlewareValidation";
+import {blogsService} from "../Service/blogService";
 
 export async function createBlogHandler(req: Request, res: Response , next: NextFunction) {
     const errors = blogsInputValidation(req.body)
@@ -8,7 +8,7 @@ export async function createBlogHandler(req: Request, res: Response , next: Next
         res.status(400).send({ errorsMessages: errors });
         return;
     }
-    const createBlog = await blogsRepository.createBlogs(req.body)
+    const createBlog = await blogsService.createBlogs(req.body)
     if(createBlog) {
         res.status(201).send(createBlog)
     }else {

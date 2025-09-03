@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import {blogsRepository} from "../repository/blogs";
+import {blogsService} from "../Service/blogService";
 
 export async function getAllBlogsHandler(req: Request, res: Response) {
-    const blogs = await blogsRepository.getAllBlogs()
+    const blogs = await blogsService.getAllBlogs()
     res.status(200).send(blogs)
 }

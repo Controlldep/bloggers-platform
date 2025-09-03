@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import {blogsRepository} from "../repository/blogs";
 import {blogsModel} from "../model/blogsModel";
+import {blogsService} from "../Service/blogService";
 
 export async function getByIdBlogHandler(req: Request, res: Response) {
-    const findByIdBlogs:blogsModel | null = await blogsRepository.getByIdBlogs(req.params.id)
+    const findByIdBlogs:blogsModel | null = await blogsService.getByIdBlogs(req.params.id)
     if(findByIdBlogs) {
         res.status(200).send(findByIdBlogs)
     }else {

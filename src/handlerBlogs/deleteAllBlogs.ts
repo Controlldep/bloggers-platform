@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import {blogsRepository} from "../repository/blogs";
+import {blogsService} from "../Service/blogService";
 
 export async function deleteAll(req: Request, res: Response) {
-    await blogsRepository.deleteAllBlogs()
+    await blogsService.deleteAllBlogs()
     res.sendStatus(204)
 }
