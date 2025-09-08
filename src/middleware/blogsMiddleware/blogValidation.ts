@@ -1,9 +1,9 @@
 import {ValidationError} from "../inputValidationMiddleware";
-import {blogsModel} from "../../model/blogsModel";
+import {blogModel} from "../../blogs/differentModels/blogModel";
 
 
 
-export const blogsInputValidation =(blog: blogsModel): ValidationError[] => {
+export const blogsInputValidation =(blog: blogModel): ValidationError[] => {
     const errors: ValidationError[] = [];
     const pattern: RegExp = /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
 

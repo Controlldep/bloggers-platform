@@ -1,5 +1,5 @@
 
-export type blogsModel = {
+export type blogModel = {
     name: string,
     description: string,
     websiteUrl:string,

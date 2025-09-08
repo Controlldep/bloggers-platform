@@ -1,6 +1,6 @@
 
 import {ValidationError} from "../inputValidationMiddleware";
-import {postModel} from "../../model/postModel";
+import {postModel} from "../../posts/differentModels/postModel";
 
 
 export const postInputValidation =(post: postModel): ValidationError[] => {
