@@ -6,15 +6,13 @@ import {updatePostHandler} from "../handlers/updatePostHandler";
 import {deletePostHandler} from "../handlers/deletePostHandler";
 import {postInputValidation} from "../../middleware/postsMiddleware/postValidation.";
 import {baseAuthorization} from "../../authorization/baseAuthorization";
-import {deleteAll} from "../handlers/deleteAllPost";
 
 
 export const postsRouter = Router();
 
 postsRouter
     .get('/posts' , getAllPostsHandler)
-    .post('/posts' , baseAuthorization ,createPostHandler, postInputValidation )
+    .post('/posts' , baseAuthorization , postInputValidation , createPostHandler)
     .get('/posts/:id' , getByIdPostHandler)
-    .put('/posts/:id' ,baseAuthorization,updatePostHandler, postInputValidation)
+    .put('/posts/:id' ,baseAuthorization, postInputValidation  , updatePostHandler)
     .delete('/posts/:id' ,baseAuthorization, deletePostHandler)
-    .delete('/testing/all-data' , deleteAll)

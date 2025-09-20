@@ -2,10 +2,10 @@ import { Request, Response} from 'express';
 import {blogsService} from "../services/blogService";
 
 export async function getAllPostForBlogs(req: Request, res: Response ) {
-    const createBlog = await blogsService.getAllPostForBlogs(req.params.id , req.query);
+    const getAllPostsForBlog = await blogsService.getAllPostsForBlog(req.params.id , req.query);
 
-    if(createBlog) {
-        res.status(201).send(createBlog)
+    if(getAllPostsForBlog) {
+        res.status(200).send(getAllPostsForBlog)
     }else {
         res.sendStatus(404)
     }

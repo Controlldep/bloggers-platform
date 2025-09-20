@@ -2,13 +2,8 @@ import { Request, Response } from 'express';
 import {postInputValidation} from "../../middleware/postsMiddleware/postValidation.";
 import {postsService} from "../service/postService";
 
-export async  function updatePostHandler(req: Request, res: Response) {
-    const errors = postInputValidation(req.body);
+export async function updatePostHandler(req: Request, res: Response) {
 
-    if (errors.length > 0) {
-        res.status(400).send({ errorsMessages: errors });
-        return;
-    }
 
     const updatePost= await postsService.updatePost(req.params.id , req.body);
 

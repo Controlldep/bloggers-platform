@@ -9,30 +9,32 @@ import {paginationQuery} from "../../paginationEndpoints/paginationQuery";
 export const  postsService = {
 
     async getAllPosts(query: paginationQuery) {
-        const { totalCount, items, pageNumber, pageSize } = await postRepository.getAllPosts(query);
+        const { totalCount, items, page, pageSize } = await postRepository.getAllPosts(query);
 
         return {
             pagesCount: Math.ceil(totalCount / pageSize),
-            page: pageNumber,
+            page,
             pageSize,
             totalCount,
             items,
         };
-    },
+    }
+,
 
     async createPost(post: postModel) {
+        if (!ObjectId.isValid(post.blogId)) {
+            return null;
+        }
+
         const findBlogNameFromId:blogModel | null = await blogsCollection.findOne({ _id: new ObjectId(post.blogId) });
-
         if (!findBlogNameFromId) return null;
-
         const result:WithId<postModel> | null = await postRepository.createPost(post, findBlogNameFromId);
-
         return postViewModel(result);
     },
 
 
     async getByIdPost(id:string) {
-        const findPost = await postRepository.getByIdPost(id);
+        const findPost = await postRepository.getPostByID(id);
 
         if(!findPost) {
             return null
@@ -59,9 +61,4 @@ export const  postsService = {
         return deletePost;
     },
 
-    async deleteAllPost() {
-        const deleteAll = await postRepository.deleteAllPost();
-
-        return deleteAll;
-    }
 }

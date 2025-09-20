@@ -6,18 +6,17 @@ import {updateBlogHandler} from "../handlers/updateBlogHandler";
 import {deleteBlogHandler} from "../handlers/deleteBlogHandler";
 import {blogsInputValidation} from "../../middleware/blogsMiddleware/blogValidation";
 import {baseAuthorization} from "../../authorization/baseAuthorization";
-import {deleteAll} from "../handlers/deleteAllBlogs";
 import {createPostForBlogHandler} from "../handlers/createPostForBlogsHandler";
 import {getAllPostForBlogs} from "../handlers/getPostsForBlogHandler";
+import {postInputValidation} from "../../middleware/postsMiddleware/postValidation.";
 
 
 export const blogsRouter = Router();
 blogsRouter
     .get('/blogs' , getAllBlogsHandler)
-    .post('/blogs' ,baseAuthorization, createBlogHandler , blogsInputValidation)
+    .post('/blogs' ,baseAuthorization,blogsInputValidation, createBlogHandler)
     .get('/blogs/:id' , getByIdBlogHandler)
-    .put('/blogs/:id' ,baseAuthorization ,updateBlogHandler, blogsInputValidation)
+    .put('/blogs/:id' ,baseAuthorization ,blogsInputValidation ,updateBlogHandler)
     .delete('/blogs/:id' ,baseAuthorization, deleteBlogHandler)
-    .delete('testing/all-data' , deleteAll)
     .get('/blogs/:id/posts' , getAllPostForBlogs)
-    .post('/blogs/:id/posts' ,baseAuthorization , createPostForBlogHandler , blogsInputValidation)
+    .post('/blogs/:id/posts' ,baseAuthorization , postInputValidation ,createPostForBlogHandler)

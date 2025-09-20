@@ -3,35 +3,58 @@ import {blogsRepository} from "../repositories/blogsRepository";
 import {blogModel} from "../differentModels/blogModel";
 import {paginationQuery} from "../../paginationEndpoints/paginationQuery";
 import {postViewModel} from "../../posts/differentModels/postViewModel";
-
-
+import {ObjectId, WithId} from "mongodb";
 
 export const  blogsService = {
 
     async getAllBlogs(query:paginationQuery) {
         const blogs = await blogsRepository.getAllBlogs(query);
 
-        return blogs
+        return blogs;
     },
 
-    async createBlogs(blogs: blogModel) {
-        const createBlog = await blogsRepository.createBlogs(blogs);
+    async createBlog(blogs: blogModel) {
+        const createBlog = await blogsRepository.createBlog(blogs);
+
+        if (!createBlog) return null;
 
         return blogViewModel(createBlog);
     },
 
-    async getByIdBlogs(id:string) {
-        const findBlogs = await blogsRepository.getByIdBlogs(id);
-        if (!findBlogs) {
+    async createPostForBlog(id: string  , data:any) {
+        const createPost = await blogsRepository.createPostForBlog(id , data );
+
+        if (!createPost) {
             return null
         }
-        return blogViewModel(findBlogs);
+
+        return postViewModel(createPost);
+    },
+
+    async getByIdBlog(id:string) {
+        const findBlog = await blogsRepository.getByIdBlog(id);
+
+        if (!findBlog) {
+            return null
+        }
+
+        return blogViewModel(findBlog);
+    },
+
+    async getAllPostsForBlog(id: string, query: paginationQuery) {
+        if (!ObjectId.isValid(id)) return null;
+
+        const findBlog = await blogsRepository.getByIdBlog(id);
+
+        if (!findBlog) return null;
+
+        return await blogsRepository.getAllPostsForBlog(id, query);
     },
 
     async updateBlog(id: string, data: Partial<blogModel>)  {
-        let result = await blogsRepository.updateBlog(id , data);
+        let updateBlog = await blogsRepository.updateBlog(id , data);
 
-        return result;
+        return updateBlog;
     },
 
     async deleteBlog(id:string) {
@@ -40,37 +63,4 @@ export const  blogsService = {
         return deleteBlog;
     },
 
-    async deleteAllBlogs() {
-        const deletedAll = await blogsRepository.deleteAllBlogs();
-
-        return deletedAll;
-    },
-
-
-    async createPostForBlogs(id: string  , data:any) {
-        const findBlogs = await blogsRepository.getByIdBlogs(id);
-
-        if(!findBlogs) {
-            return null
-        }
-
-        const createPost = await blogsRepository.createPostForBlogs(id , data )
-
-        return createPost
-    },
-
-    async getAllPostForBlogs(id: string, query: paginationQuery) {
-        const findBlogs = await blogsRepository.getByIdBlogs(id);
-        if (!findBlogs) return null;
-
-        const { totalCount, items, pageNumber, pageSize } = await blogsRepository.getAllPostForBlogs(id, query);
-
-        return {
-            pagesCount: Math.ceil(totalCount / pageSize),
-            page: pageNumber,
-            pageSize,
-            totalCount,
-            items, // уже с id вместо _id
-        };
-    }
 }

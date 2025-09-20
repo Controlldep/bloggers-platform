@@ -1,37 +1,31 @@
+import { check, validationResult} from "express-validator";
+import { NextFunction, Request, Response } from "express";
 
-import {ValidationError} from "../inputValidationMiddleware";
-import {postModel} from "../../posts/differentModels/postModel";
+export const postInputValidation = [
+    check("title")
+        .trim()
+        .isLength({ min: 2, max: 30 })
+        .withMessage("Invalid title"),
 
+    check("shortDescription")
+        .trim()
+        .isLength({ min: 2, max: 100 })
+        .withMessage("Invalid shortDescription"),
 
-export const postInputValidation =(post: postModel): ValidationError[] => {
-    const errors: ValidationError[] = [];
+    check("content")
+        .trim()
+        .isLength({ min: 2, max: 1000 })
+        .withMessage("Invalid content"),
 
-    if(
-        !post.title ||
-        typeof post.title !== 'string' ||
-        post.title.trim().length < 2 ||
-        post.title.trim().length > 30
-    ) {
-        errors.push({field: 'title' , message: 'invalid title'})
+    (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const formattedErrors = errors.array().map(err => ({
+                message: err.msg,
+                field: (err as any).path
+            }));
+            return res.status(400).json({ errorsMessages: formattedErrors });
+        }
+        next();
     }
-
-    if(
-        !post.shortDescription ||
-        typeof post.shortDescription !== 'string' ||
-        post.shortDescription.trim().length < 2 ||
-        post.shortDescription.trim().length > 100
-    ) {
-        errors.push({field: 'shortDescription' , message: 'invalid shortDescription'})
-    }
-
-    if(
-        !post.content ||
-        typeof post.content !== 'string' ||
-        post.content.trim().length < 2 ||
-        post.content.trim().length > 1000
-    ) {
-        errors.push({field: 'content' , message: 'content'})
-    }
-
-    return errors
-}
+];

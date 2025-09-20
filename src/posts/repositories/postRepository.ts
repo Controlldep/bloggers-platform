@@ -33,7 +33,7 @@ export const  postRepository = {
 
         return {
             totalCount,
-            pageNumber,
+            page: pageNumber,
             pageSize,
             items: mappedItems,
         };
@@ -41,7 +41,6 @@ export const  postRepository = {
 
     async createPost(post: postModel , findBlogNameFromId: blogModel) {
         const createdAt = new Date().toISOString();
-
         const createPost: postModel = {
             title: post.title,
             shortDescription: post.shortDescription,
@@ -57,14 +56,14 @@ export const  postRepository = {
         return created;
     },
 
-    async getByIdPost(id:string) {
+    async getPostByID(id:string) {
         const findPost = await postsCollection.findOne({ _id: new ObjectId(id) });
 
         return findPost;
     },
 
     async updatePost(id: string, post: postModel , findBlog: blogModel) {
-        const result:postModel | null = await postsCollection.findOneAndUpdate(
+        const updatePost:postModel | null = await postsCollection.findOneAndUpdate(
             { _id: new ObjectId(id) },
             {
                 $set: {
@@ -78,9 +77,9 @@ export const  postRepository = {
             { returnDocument: 'after' }
         );
 
-        if (!result) return null;
+        if (!updatePost) return null;
 
-        return result;
+        return updatePost;
     },
 
     async deletePost(id:string) {

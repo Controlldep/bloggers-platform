@@ -2,6 +2,9 @@ import express from "express";
 import {blogsRouter} from "./blogs/routers/blogsRouter";
 import {postsRouter} from "./posts/routers/postsRouter";
 import {client} from "./db/mongoDb";
+import {testingRouter} from "./deleteALLDATA/testingRouter";
+import {authRouter} from "./authorization/authRouter";
+import {usersRouter} from "./users/routers/usersRouter";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -9,6 +12,9 @@ const port = process.env.PORT || 8080;
 app.use(express.json());
 app.use(blogsRouter)
 app.use(postsRouter)
+app.use(testingRouter)
+app.use(authRouter)
+app.use(usersRouter)
 
 async function run() {
     try {
@@ -25,5 +31,4 @@ async function run() {
         await client.close();
     }
 }
-
 run().catch(console.dir);

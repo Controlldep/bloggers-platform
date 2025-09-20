@@ -3,10 +3,10 @@ import {blogModel} from "../differentModels/blogModel";
 import {blogsService} from "../services/blogService";
 
 export async function getByIdBlogHandler(req: Request, res: Response) {
-    const findByIdBlogs:blogModel | null = await blogsService.getByIdBlogs(req.params.id);
+    const findBlogsByID:blogModel | null = await blogsService.getByIdBlog(req.params.id);
 
-    if(findByIdBlogs) {
-        res.status(200).send(findByIdBlogs)
+    if(findBlogsByID) {
+        res.status(200).send(findBlogsByID)
     }else {
         res.sendStatus(404)
     }

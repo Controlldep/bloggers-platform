@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import {postsService} from "../service/postService";
 
-export async  function deletePostHandler(req: Request, res: Response) {
+export async function deletePostHandler(req: Request, res: Response) {
     const deletePost = await postsService.deletePost(req.params.id);
 
     if(deletePost) {
