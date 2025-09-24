@@ -5,6 +5,7 @@ import {client} from "./db/mongoDb";
 import {testingRouter} from "./deleteALLDATA/testingRouter";
 import {authRouter} from "./authorization/authRouter";
 import {usersRouter} from "./users/routers/usersRouter";
+import {commentsRouter} from "./comments/routers/commentsRouter";
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -15,6 +16,7 @@ app.use(postsRouter)
 app.use(testingRouter)
 app.use(authRouter)
 app.use(usersRouter)
+app.use(commentsRouter)
 
 async function run() {
     try {
