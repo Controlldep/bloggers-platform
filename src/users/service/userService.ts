@@ -4,6 +4,8 @@ import {paginationQuery} from "../differentModels/paginationQuery";
 import {userInputModel} from "../differentModels/userInputModel";
 import {userModel} from "../differentModels/userModels";
 import {userViewModel} from "../differentModels/userViewModel";
+import {postRepository} from "../../posts/repositories/postRepository";
+import {postViewModel} from "../../posts/differentModels/postViewModel";
 
 export const UsersService = {
 
@@ -32,5 +34,15 @@ export const UsersService = {
         const deleted = await UsersRepository.deleteUser(id);
 
         return deleted;
+    },
+
+    async findUserById(id:string) {
+        const findUser = await UsersRepository.getUserByID(id);
+
+        if(!findUser) {
+            return null
+        }
+
+        return findUser;
     }
 }

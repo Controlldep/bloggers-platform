@@ -2,7 +2,7 @@ import {paginationQuery} from "../differentModels/paginationQuery";
 import {paginationModel} from "../../paginationEndpoints/paginationModel";
 import {userViewModel} from "../differentModels/userViewModel";
 import {userModel} from "../differentModels/userModels";
-import {blogsCollection, usersCollection} from "../../db/mongoDb";
+import {blogsCollection, postsCollection, usersCollection} from "../../db/mongoDb";
 import {ObjectId} from "mongodb";
 
 export const UsersRepository = {
@@ -78,6 +78,12 @@ export const UsersRepository = {
         const deletedAll = await usersCollection.deleteMany({});
 
         return deletedAll.deletedCount;
+    },
+
+    async getUserByID(id:string) {
+        const findUser = await usersCollection.findOne({ _id: new ObjectId(id) });
+
+        return findUser;
     }
 
 }

@@ -1,13 +1,16 @@
-import { Request, Response } from 'express';
+import {Request, Response} from 'express';
 import {postsService} from "../service/postService";
+import {postModel} from "../differentModels/postModel";
 
-export async function createPostHandler(req: Request, res: Response) {
+//TODO типизировать реквест ( пример )
+export async function createPostHandler(req: Request<{}, {}, postModel>, res: Response) {
     const createPost = await postsService.createPost(req.body);
 
-    if(createPost) {
+    if (createPost) {
         res.status(201).send(createPost)
-    }else {
-        res.sendStatus(400)
+        return
     }
+
+    res.sendStatus(400)
 
 }

@@ -92,5 +92,6 @@ export const  postRepository = {
         const deleteAll = await postsCollection.deleteMany({});
 
         return deleteAll.deletedCount;
-    }
+    },
+
 }

@@ -22,12 +22,14 @@ export const  postsService = {
 ,
 
     async createPost(post: postModel) {
+        //TODO валидацию делать в express validaotr
         if (!ObjectId.isValid(post.blogId)) {
             return null;
         }
-
+//TODO в репо вынести
         const findBlogNameFromId:blogModel | null = await blogsCollection.findOne({ _id: new ObjectId(post.blogId) });
         if (!findBlogNameFromId) return null;
+
         const result:WithId<postModel> | null = await postRepository.createPost(post, findBlogNameFromId);
         return postViewModel(result);
     },
