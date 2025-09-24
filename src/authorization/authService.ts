@@ -15,4 +15,18 @@ export const AuthService = {
         return user;
     },
 
+    async meUser(id:string) {
+        const user = await UsersRepository.getUserByID(id);
+
+        if (!user) {
+            return null
+        }
+
+        return {
+            email: user.email,
+            login: user.login,
+            userId: user._id.toString()
+        }
+    }
+
 }
