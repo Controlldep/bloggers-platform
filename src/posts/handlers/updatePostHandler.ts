@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import {postInputValidation} from "../../middleware/postsMiddleware/postValidation.";
 import {postsService} from "../service/postService";
 
-export async function updatePostHandler(req: Request, res: Response) {
 
+export async function updatePostHandler(req: Request, res: Response) {
 
     const updatePost= await postsService.updatePost(req.params.id , req.body);
 

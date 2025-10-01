@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import {postsService} from "../service/postService";
+import {postQueryRepository} from "../repositories/postQueryRepository";
 
 
 export async function getAllPostsHandler(req: Request, res: Response) {
-    const posts = await postsService.getAllPosts(req.query);
+    const posts = await postQueryRepository.getAllPosts(req.query);
 
     res.status(200).send(posts);
 }

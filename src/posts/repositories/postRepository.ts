@@ -1,66 +1,30 @@
 import {postModel} from "../differentModels/postModel";
-import {blogsCollection, postsCollection} from "../../db/mongoDb";
-import { ObjectId } from "mongodb";
+import {postsCollection} from "../../db/mongoDb";
+import {ObjectId, WithId} from "mongodb";
 import {blogModel} from "../../blogs/differentModels/blogModel";
-import {paginationQuery} from "../../paginationEndpoints/paginationQuery";
 
 export const  postRepository = {
 
-    async getAllPosts(query: paginationQuery) {
-        const pageNumber = Number(query.pageNumber) || 1;
-        const pageSize = Number(query.pageSize) || 10;
-        const sortBy = query.sortBy || 'createdAt';
-        const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
-
-        const totalCount = await postsCollection.countDocuments({});
-
-        const items = await postsCollection
-            .find({})
-            .sort({ [sortBy]: sortDirection })
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .toArray();
-
-        const mappedItems = items.map(post => ({
-            id: post._id.toString(),
-            title: post.title,
-            shortDescription: post.shortDescription,
-            content: post.content,
-            blogId: post.blogId,
-            blogName: post.blogName,
-            createdAt: post.createdAt,
-        }));
-
-        return {
-            totalCount,
-            page: pageNumber,
-            pageSize,
-            items: mappedItems,
-        };
+    async getPostByID(id:string) {
+        const findPost = await postsCollection.findOne({_id: new ObjectId(id)});
+        return findPost;
     },
 
-    async createPost(post: postModel , findBlogNameFromId: blogModel) {
+    async createPost(post: postModel , findBlog: WithId<blogModel>) {
         const createdAt = new Date().toISOString();
         const createPost: postModel = {
             title: post.title,
             shortDescription: post.shortDescription,
             content: post.content,
-            blogId: post.blogId,
+            blogId: findBlog._id.toString(),
             createdAt,
-            blogName: findBlogNameFromId.name,
+            blogName: findBlog.name,
         };
 
         const result = await postsCollection.insertOne(createPost);
-        const created = await postsCollection.findOne({ _id: result.insertedId });
-
-        return created;
+        return result.insertedId.toString();
     },
 
-    async getPostByID(id:string) {
-        const findPost = await postsCollection.findOne({ _id: new ObjectId(id) });
-
-        return findPost;
-    },
 
     async updatePost(id: string, post: postModel , findBlog: blogModel) {
         const updatePost:postModel | null = await postsCollection.findOneAndUpdate(

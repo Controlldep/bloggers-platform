@@ -4,7 +4,7 @@ import {createPostHandler} from "../handlers/createPostHandler";
 import {getByIdPostHandler} from "../handlers/getByIdPostHandler";
 import {updatePostHandler} from "../handlers/updatePostHandler";
 import {deletePostHandler} from "../handlers/deletePostHandler";
-import {postInputValidation} from "../../middleware/postsMiddleware/postValidation.";
+import {postInputValidation} from "../validation/postValidation.";
 import {baseAuthorization} from "../../authorization/baseAuthorization";
 import {getCommentsByPostHandler} from "../handlers/getAllCommentsForPost";
 import {createCommentHandler} from "../handlers/createCommentsForPost";

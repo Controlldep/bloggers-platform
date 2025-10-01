@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {commentsService} from "../../comments/service/commentsService";
-import {postsService} from "../service/postService";
 import { ObjectId } from "mongodb";
+import {postQueryRepository} from "../repositories/postQueryRepository";
 
 
 export const getCommentsByPostHandler = async (req: Request, res: Response) => {
@@ -11,7 +11,7 @@ export const getCommentsByPostHandler = async (req: Request, res: Response) => {
         return res.sendStatus(404);
     }
 
-    const post = await postsService.getByIdPost(postId);
+    const post = await postQueryRepository.getPostByID(postId);
     if (!post) {
         return res.sendStatus(404);
     }

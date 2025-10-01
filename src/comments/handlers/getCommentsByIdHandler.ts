@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import {commentsService} from "../service/commentsService";
 
 export const getCommentByIdHandler = async (req: Request, res: Response) => {

@@ -17,20 +17,20 @@ export const UsersRepository = {
 
         if (query.searchLoginTerm && query.searchEmailTerm) {
             filter.$or = [
-                { login: { $regex: query.searchLoginTerm, $options: 'i' } },
-                { email: { $regex: query.searchEmailTerm, $options: 'i' } }
+                {login: {$regex: query.searchLoginTerm, $options: 'i'}},
+                {email: {$regex: query.searchEmailTerm, $options: 'i'}}
             ];
         } else if (query.searchLoginTerm) {
-            filter.login = { $regex: query.searchLoginTerm, $options: 'i' };
+            filter.login = {$regex: query.searchLoginTerm, $options: 'i'};
         } else if (query.searchEmailTerm) {
-            filter.email = { $regex: query.searchEmailTerm, $options: 'i' };
+            filter.email = {$regex: query.searchEmailTerm, $options: 'i'};
         }
 
         const totalCount = await usersCollection.countDocuments(filter);
 
         const items = await usersCollection
             .find(filter)
-            .sort({ [sortBy]: sortDirection })
+            .sort({[sortBy]: sortDirection})
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .toArray();
@@ -54,7 +54,7 @@ export const UsersRepository = {
 
     async createUser(user: userModel) {
         const created = await usersCollection.insertOne(user);
-        return usersCollection.findOne({ _id: created.insertedId });
+        return usersCollection.findOne({_id: created.insertedId});
     },
 
     async deleteUser(id: string) {
@@ -68,10 +68,19 @@ export const UsersRepository = {
         return deleteBlog.deletedCount === 1;
     },
 
-    async findByLoginOrEmail(login: string , email: string) {
-        return usersCollection.findOne({
-            $or: [{ login: login }, { email: email }]
-        });
+    async findByLoginOrEmail(login?: string, email?: string) {
+        const filter: any = { $or: [] };
+
+        if (login) filter.$or.push({ login });
+        if (email) filter.$or.push({ email });
+
+        if (filter.$or.length === 0) return null;
+
+        return usersCollection.findOne(filter);
+    },
+
+    async findUserByConfirmationCode(code: string) {
+        return usersCollection.findOne({confirmationCode: code})
     },
 
     async deleteAll() {
@@ -80,10 +89,23 @@ export const UsersRepository = {
         return deletedAll.deletedCount;
     },
 
-    async getUserByID(id:string) {
-        const findUser = await usersCollection.findOne({ _id: new ObjectId(id) });
+    async getUserByID(id: string) {
+        const findUser = await usersCollection.findOne({_id: new ObjectId(id)});
 
         return findUser;
-    }
+    },
 
+    async verifyUser(userId: ObjectId) {
+        return usersCollection.updateOne(
+            {_id: userId},
+            {$set: {isConfirmed: true, confirmationCode: null, expirationDate: null}}
+        );
+
+    },
+    async updateConfirmation(userId: ObjectId, code: string, expirationDate: Date) {
+        return usersCollection.updateOne(
+            { _id: userId },
+            { $set: { confirmationCode: code, expirationDate: expirationDate } }
+        );
+    }
 }

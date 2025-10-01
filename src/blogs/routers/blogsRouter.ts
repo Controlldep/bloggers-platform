@@ -4,11 +4,11 @@ import {createBlogHandler} from "../handlers/createBlogHandler";
 import {getByIdBlogHandler} from "../handlers/getByIdBlogHandler";
 import {updateBlogHandler} from "../handlers/updateBlogHandler";
 import {deleteBlogHandler} from "../handlers/deleteBlogHandler";
-import {blogsInputValidation} from "../../middleware/blogsMiddleware/blogValidation";
+import {blogsInputValidation} from "../validation/blogValidation";
 import {baseAuthorization} from "../../authorization/baseAuthorization";
 import {createPostForBlogHandler} from "../handlers/createPostForBlogsHandler";
 import {getAllPostForBlogs} from "../handlers/getPostsForBlogHandler";
-import {postInputValidation} from "../../middleware/postsMiddleware/postValidation.";
+import {postInputValidation} from "../../posts/validation/postValidation.";
 
 
 export const blogsRouter = Router();

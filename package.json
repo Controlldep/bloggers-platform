@@ -15,11 +15,15 @@
   "dependencies": {
     "-": "^0.0.1",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemailer": "^7.0.1",
     "bcrypt": "^6.0.0",
+    "date-fns": "^4.1.0",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.19.0"
+    "mongodb": "^6.19.0",
+    "nodemailer": "^7.0.6",
+    "uuid": "8"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -34,7 +38,7 @@
     "nodemon": "^3.1.10",
     "prettier": "^3.6.2",
     "supertest": "^7.1.4",
-    "ts-jest": "^29.4.1",
+    "ts-jest": "^29.4.4",
     "typescript": "^5.9.2"
   }
 }

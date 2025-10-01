@@ -4,8 +4,6 @@ import {paginationQuery} from "../differentModels/paginationQuery";
 import {userInputModel} from "../differentModels/userInputModel";
 import {userModel} from "../differentModels/userModels";
 import {userViewModel} from "../differentModels/userViewModel";
-import {postRepository} from "../../posts/repositories/postRepository";
-import {postViewModel} from "../../posts/differentModels/postViewModel";
 
 export const UsersService = {
 
@@ -23,7 +21,10 @@ export const UsersService = {
             login: user.login,
             email: user.email,
             password: passwordHash,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            confirmationCode: null,
+            expirationDate: null,
+            isConfirmed: true
         };
 
         const createdUser = await UsersRepository.createUser(userForDb);

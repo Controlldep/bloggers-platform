@@ -3,11 +3,11 @@ import {blogsRouter} from "./blogs/routers/blogsRouter";
 import {postsRouter} from "./posts/routers/postsRouter";
 import {client} from "./db/mongoDb";
 import {testingRouter} from "./deleteALLDATA/testingRouter";
-import {authRouter} from "./authorization/authRouter";
+import {authRouter} from "./authorization/routers/authRouter";
 import {usersRouter} from "./users/routers/usersRouter";
 import {commentsRouter} from "./comments/routers/commentsRouter";
 
-const app = express();
+export const app = express();
 const port = process.env.PORT || 8080;
 
 app.use(express.json());

@@ -1,52 +1,22 @@
-import {postViewModel} from "../differentModels/postViewModel";
+
 import {postRepository} from "../repositories/postRepository";
 import {postModel} from "../differentModels/postModel";
-import {blogsCollection} from "../../db/mongoDb";
-import {ObjectId, WithId} from "mongodb";
-import {blogModel} from "../../blogs/differentModels/blogModel";
-import {paginationQuery} from "../../paginationEndpoints/paginationQuery";
+
+import {blogsRepository} from "../../blogs/repositories/blogsRepository";
+
 
 export const  postsService = {
 
-    async getAllPosts(query: paginationQuery) {
-        const { totalCount, items, page, pageSize } = await postRepository.getAllPosts(query);
-
-        return {
-            pagesCount: Math.ceil(totalCount / pageSize),
-            page,
-            pageSize,
-            totalCount,
-            items,
-        };
-    }
-,
-
     async createPost(post: postModel) {
-        //TODO валидацию делать в express validaotr
-        if (!ObjectId.isValid(post.blogId)) {
-            return null;
-        }
-//TODO в репо вынести
-        const findBlogNameFromId:blogModel | null = await blogsCollection.findOne({ _id: new ObjectId(post.blogId) });
-        if (!findBlogNameFromId) return null;
+        const findBlog= await blogsRepository.getBlogById(post.blogId);
+        if(!findBlog) return null;
 
-        const result:WithId<postModel> | null = await postRepository.createPost(post, findBlogNameFromId);
-        return postViewModel(result);
-    },
-
-
-    async getByIdPost(id:string) {
-        const findPost = await postRepository.getPostByID(id);
-
-        if(!findPost) {
-            return null
-        }
-
-        return postViewModel(findPost);
+        const result = await postRepository.createPost(post, findBlog);
+        return result;
     },
 
     async updatePost(id: string, post: postModel) {
-        const findBlog = await blogsCollection.findOne({ _id: new ObjectId(post.blogId) });
+        const findBlog = await blogsRepository.getBlogById(post.blogId);
 
         if (!findBlog) return null;
 
@@ -54,7 +24,7 @@ export const  postsService = {
 
         if (!result) return null;
 
-        return postViewModel(result)
+        return result;
     },
 
     async deletePost(id:string) {

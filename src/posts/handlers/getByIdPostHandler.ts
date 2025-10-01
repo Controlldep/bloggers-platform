@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import {postsService} from "../service/postService";
+import {postQueryRepository} from "../repositories/postQueryRepository";
 
 export async function getByIdPostHandler(req: Request, res: Response) {
-    const findPostByID = await postsService.getByIdPost(req.params.id);
+    const findPostByID = await postQueryRepository.getPostByID(req.params.id);
 
     if(findPostByID) {
         res.status(200).send(findPostByID)
