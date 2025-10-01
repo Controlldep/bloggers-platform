@@ -6,9 +6,11 @@ export const baseAuthorization = (req: Request, res: Response, next: NextFunctio
     const urlToken = req.headers['authorization'];
 
     if(token === urlToken) {
-        return next();
+        next()
+        return
     }else {
         res.sendStatus(401);
     }
+
 
 }

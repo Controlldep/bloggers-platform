@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import {AuthService} from "./authService";
+import {AuthService} from "../service/authService";
 
 export async function meHandler(req: Request , res: Response) {
     if (!req.userId) {

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import {AuthService} from "./authService";
-import {jwtService} from "./jwtService/jwtService";
+import {AuthService} from "../service/authService";
+import {jwtService} from "../service/jwtService";
 
 export async function authHandler(req: Request , res: Response) {
     const authUser = await AuthService.authUser(req.body);

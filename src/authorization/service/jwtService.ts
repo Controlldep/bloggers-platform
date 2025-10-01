@@ -1,4 +1,3 @@
-import {ObjectId} from "mongodb";
 import jwt from "jsonwebtoken";
 import {settings} from "../../settings";
 
