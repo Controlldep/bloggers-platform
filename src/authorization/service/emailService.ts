@@ -9,8 +9,8 @@ export const emailService = {
             port: 465,
             secure: true,
             auth: {
-                user: "mixailmar4uk78@gmail.com",
-                pass: "lrojzpqlandxtjqu"
+                user: "lalal@gmail.com",
+                pass: "lalalaa"
             },
         });
 
