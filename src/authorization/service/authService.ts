@@ -28,7 +28,7 @@ export const AuthService = {
         if(!userCreated) return null
 
         try {
-            await emailService.sendRegistrationEmail(userCreated.email, userCreated.confirmationCode!);
+            emailService.sendRegistrationEmail(userCreated.email, userCreated.confirmationCode!);
         } catch (e) {
             console.log(e);
         }
@@ -84,7 +84,7 @@ export const AuthService = {
 
         await UsersRepository.updateConfirmation(user._id, newCode, newExpiration);
 
-        await emailService.sendRegistrationEmail(user.email, newCode);
+        emailService.sendRegistrationEmail(user.email, newCode);
 
         return true;
     },
