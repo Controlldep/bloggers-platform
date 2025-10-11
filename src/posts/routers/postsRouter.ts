@@ -8,7 +8,7 @@ import {postInputValidation} from "../validation/postValidation.";
 import {baseAuthorization} from "../../authorization/baseAuthorization";
 import {getCommentsByPostHandler} from "../handlers/getAllCommentsForPost";
 import {createCommentHandler} from "../handlers/createCommentsForPost";
-import {authMiddleware} from "../../authorization/middleware/authMiddleware";
+import {authAccessMiddleware} from "../../authorization/middleware/authAccessMiddleware";
 
 
 export const postsRouter = Router();
@@ -20,4 +20,4 @@ postsRouter
     .put('/posts/:id' ,baseAuthorization, postInputValidation  , updatePostHandler)
     .delete('/posts/:id' ,baseAuthorization, deletePostHandler)
     .get('/posts/:id/comments' , getCommentsByPostHandler)
-    .post('/posts/:id/comments' , authMiddleware , createCommentHandler)
+    .post('/posts/:id/comments' , authAccessMiddleware , createCommentHandler)

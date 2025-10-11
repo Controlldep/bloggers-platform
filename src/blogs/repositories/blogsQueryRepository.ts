@@ -9,6 +9,7 @@ import {blogViewModel} from "../differentModels/blogViewModel";
 export const blogsQueryRepository = {
 
     async getByIdBlog(id:string) {
+        // TODO: типизировать метод (id: string) => Promise<BlogViewModel | null>
         const findBlogs = await blogsCollection.findOne({ _id: new ObjectId(id) });
         if(!findBlogs) return null
 
@@ -46,12 +47,13 @@ export const blogsQueryRepository = {
     },
 
     async getAllBlogs(query: paginationQuery) {
+        // TODO: типизировать метод
         const pageNumber = query.pageNumber ? Number(query.pageNumber) : 1;
         const pageSize = query.pageSize ? Number(query.pageSize) : 10;
         const sortBy = query.sortBy ?? 'createdAt';
         const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
 
-
+// TODO: заменить filter: any на конкретный тип (Record<string, any> или Partial<BlogDbModel>)
         const filter: any = query.searchNameTerm
             ? { name: { $regex: query.searchNameTerm, $options: 'i' } }
             : {};
@@ -67,7 +69,7 @@ export const blogsQueryRepository = {
 
         const mappedItems = items.map(blog => (blogViewModel(blog)));
         const pagesCount = Math.ceil(totalCount / pageSize);
-
+// TODO: вынести объявление типа BlogViewModel из функции наружу
         type BlogViewModel = ReturnType<typeof blogViewModel>;
 
         const result: paginationModel<BlogViewModel> = {

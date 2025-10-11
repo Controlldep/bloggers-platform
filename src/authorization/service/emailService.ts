@@ -9,8 +9,8 @@ export const emailService = {
             port: 465,
             secure: true,
             auth: {
-                user: "lalal@gmail.com",
-                pass: "lalalaa"
+                user: "aahhahaha",
+                pass: "ahahahahah"
             },
         });
 
@@ -22,7 +22,6 @@ export const emailService = {
 <a href="https://some-front.com/confirm-registration?code=${code}">Подтвердить регистрацию</a>
 <p>Если вы не регистрировались — проигнорируйте это письмо.</p>
 `;
-
         await transporter.sendMail({
             from: `"MyApp" <mixailmar4uk78@gmail.com>`,
             to: email,
@@ -37,3 +36,4 @@ export const emailService = {
         return true;
     }
 };
+

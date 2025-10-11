@@ -9,6 +9,7 @@ export const baseAuthorization = (req: Request, res: Response, next: NextFunctio
         next()
         return
     }else {
+        // TODO: в baseAuthorization добавить return после res.sendStatus(401) (для консистентности)
         res.sendStatus(401);
     }
 

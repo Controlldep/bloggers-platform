@@ -3,7 +3,7 @@ import {jwtService} from "../service/jwtService";
 import {UsersService} from "../../users/service/userService";
 
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const authAccessMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.headers.authorization) {
         return res.sendStatus(401);
     }

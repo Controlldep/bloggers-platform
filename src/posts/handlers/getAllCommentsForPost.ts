@@ -1,15 +1,10 @@
 import { Request, Response } from "express";
 import {commentsService} from "../../comments/service/commentsService";
-import { ObjectId } from "mongodb";
 import {postQueryRepository} from "../repositories/postQueryRepository";
 
 
 export const getCommentsByPostHandler = async (req: Request, res: Response) => {
     const postId = req.params.id;
-
-    if (!ObjectId.isValid(postId)) {
-        return res.sendStatus(404);
-    }
 
     const post = await postQueryRepository.getPostByID(postId);
     if (!post) {

@@ -1,42 +1,7 @@
-// import {body, validationResult} from "express-validator";
-// import { NextFunction, Request, Response } from "express";
-//
-// const urlPattern = /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
-//
-// export const blogsInputValidation = [
-//     body("name")
-//         .trim()
-//         .isLength({ min: 2, max: 15 })
-//         .withMessage("Invalid name"),
-//
-//     body("description")
-//         .trim()
-//         .isLength({ min: 2, max: 500 })
-//         .withMessage("Invalid description"),
-//
-//     body("websiteUrl")
-//         .trim()
-//         .isLength({ max: 100 })
-//         .withMessage("Website URL too long")
-//         .matches(urlPattern)
-//         .withMessage("Invalid websiteUrl"),
-//
-//     (req: Request, res: Response, next: NextFunction) => {
-//         const errors = validationResult(req);
-//         if (!errors.isEmpty()) {
-//             const formattedErrors = errors.array().map(err => ({
-//                 field: path,
-//                 message: err.msg
-//             }));
-//             return res.status(400).json({ errorsMessages: errors.array() });
-//         }
-//         next();
-//     }
-// ];
 
-import {body, check, validationResult} from "express-validator";
+import { check, validationResult} from "express-validator";
 import { NextFunction, Request, Response } from "express";
-
+// TODO: переименовать urlPattern → websiteUrlPattern (чуть точнее по смыслу)
 const urlPattern = /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/;
 
 export const blogsInputValidation = [

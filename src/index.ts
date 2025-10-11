@@ -6,17 +6,22 @@ import {testingRouter} from "./deleteALLDATA/testingRouter";
 import {authRouter} from "./authorization/routers/authRouter";
 import {usersRouter} from "./users/routers/usersRouter";
 import {commentsRouter} from "./comments/routers/commentsRouter";
+import cookieParser from "cookie-parser";
+import {sessionRouter} from "./securityDevices/routers/sessionRouter";
 
 export const app = express();
 const port = process.env.PORT || 8080;
 
 app.use(express.json());
+app.use(cookieParser())
+app.set('trust proxy', true);
 app.use(blogsRouter)
 app.use(postsRouter)
 app.use(testingRouter)
 app.use(authRouter)
 app.use(usersRouter)
 app.use(commentsRouter)
+app.use(sessionRouter)
 
 async function run() {
     try {

@@ -1,5 +1,4 @@
 import { check, validationResult} from "express-validator";
-import {UsersRepository} from "../repositories/usersRepository";
 import {NextFunction , Response , Request} from "express";
 
 export const userValidation = [
