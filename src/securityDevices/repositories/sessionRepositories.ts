@@ -1,18 +1,20 @@
 import {sessionCollection} from "../../db/mongoDb";
 import {sessionModel} from "../models/sessionModel";
+import {WithId} from "mongodb";
+import {sessionViewModel} from "../models/sessionViewModel";
 
 
 export const sessionRepositories = {
-    async createSession(data: sessionModel) {
-        const saveSession = await sessionCollection.insertOne(data);
+    async createSession(data: sessionModel):Promise<boolean> {
+        await sessionCollection.insertOne(data);
         return true;
     },
 
-    async findSessionByDeviceId(deviceId: string) {
+    async findSessionByDeviceId(deviceId: string):Promise<WithId<sessionModel> | null> {
         return await sessionCollection.findOne({ deviceId });
     },
 
-    async updateLastActiveDate(userId: string, deviceId: string, exp: number) {
+    async updateLastActiveDate(userId: string, deviceId: string, exp: number):Promise<boolean> {
         const result = await sessionCollection.updateOne(
             {userId, deviceId},
             {
@@ -26,12 +28,12 @@ export const sessionRepositories = {
     },
 
     async getAllSessionsByUser(userId: string) {
-        const findSessions = await sessionCollection.find({userId: userId}).toArray()
+        const findSessions:WithId<sessionModel>[] = await sessionCollection.find({userId: userId}).toArray()
 
         return findSessions
     },
 
-    async deleteAllSessionsByUserExceptCurrent(userId: string, currentDeviceId: string) {
+    async deleteAllSessionsByUserExceptCurrent(userId: string, currentDeviceId: string):Promise<boolean> {
         const result = await sessionCollection.deleteMany({
             userId,
             deviceId: { $ne: currentDeviceId }
@@ -39,7 +41,7 @@ export const sessionRepositories = {
         return result.deletedCount > 0;
     },
 
-    async deleteSessionByDevice(userId: string , deviceId: string) {
+    async deleteSessionByDevice(userId: string , deviceId: string):Promise<boolean> {
         const deleteSession = await sessionCollection.deleteOne({userId: userId , deviceId: deviceId})
 
         return deleteSession.deletedCount > 0;

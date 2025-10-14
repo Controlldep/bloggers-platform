@@ -7,11 +7,12 @@ import {deletePostHandler} from "../handlers/deletePostHandler";
 import {postInputValidation} from "../validation/postValidation.";
 import {baseAuthorization} from "../../authorization/baseAuthorization";
 import {getCommentsByPostHandler} from "../handlers/getAllCommentsForPost";
-import {createCommentHandler} from "../handlers/createCommentsForPost";
+import {createCommentForPostHandler} from "../handlers/createCommentsForPost";
 import {authAccessMiddleware} from "../../authorization/middleware/authAccessMiddleware";
+import {commentsValidation} from "../validation/commentsValidation";
 
 
-export const postsRouter = Router();
+export const postsRouter:Router = Router();
 
 postsRouter
     .get('/posts' , getAllPostsHandler)
@@ -20,4 +21,4 @@ postsRouter
     .put('/posts/:id' ,baseAuthorization, postInputValidation  , updatePostHandler)
     .delete('/posts/:id' ,baseAuthorization, deletePostHandler)
     .get('/posts/:id/comments' , getCommentsByPostHandler)
-    .post('/posts/:id/comments' , authAccessMiddleware , createCommentHandler)
+    .post('/posts/:id/comments' , authAccessMiddleware , commentsValidation , createCommentForPostHandler)

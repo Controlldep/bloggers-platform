@@ -1,42 +1,27 @@
 import { Request, Response } from "express";
 import {commentsService} from "../../comments/service/commentsService";
-import { ObjectId } from "mongodb";
 import {UsersService} from "../../users/service/userService";
 import {postQueryRepository} from "../repositories/postQueryRepository";
+import {RequestWithParamsAndBody} from "../../types/requestTypes";
+import {postViewModel} from "../differentModels/postViewModel";
+import {WithId} from "mongodb";
+import {userModel} from "../../users/differentModels/userModels";
+import {commentsQueryRepository} from "../../comments/repositories/commentsQueryRepository";
+import {commentViewModel} from "../../comments/differentModels/commentViewModel";
 
-export const createCommentHandler = async (req: Request, res: Response) => {
-    const postId = req.params.id;
-    const userId = req.userId; // authMiddleware уже положил сюда id
-    const { content } = req.body;
+export const createCommentForPostHandler = async (req: RequestWithParamsAndBody<{id: string}, {content: string}>, res: Response) => {
+    const userId:string = req.userId!;
 
-    if (!userId) {
-        return res.sendStatus(401);
-    }
+    const findPostInDb:postViewModel | null = await postQueryRepository.findPostById(req.params.id);
+    if (!findPostInDb) return res.sendStatus(404);
 
-    if (!ObjectId.isValid(postId)) {
-        return res.sendStatus(404);
-    }
+    const findUserInDb:WithId<userModel> | null = await UsersService.findUserById(userId);
+    if (!findUserInDb) return res.sendStatus(401);
 
-    const post = await postQueryRepository.getPostByID(postId);
-    if (!post) {
-        return res.sendStatus(404);
-    }
+    const createNewComment: string | null = await commentsService.createComment(req.params.id, req.body.content, userId, findUserInDb.login);
+    if(!createNewComment) return res.sendStatus(500);
 
-    if (!content || content.length < 20 || content.length > 300) {
-        return res.status(400).json({
-            errorsMessages: [
-                { message: "Content length must be 20-300 characters", field: "content" },
-            ],
-        });
-    }
-    const dbUser = await UsersService.findUserById(userId);
-    if (!dbUser) return res.sendStatus(401);
+    const findCommentInDb:commentViewModel | null = await commentsQueryRepository.getCommentsById(createNewComment)
 
-    const newComment = await commentsService.createComment(postId, content, {
-        id: userId,
-        userLogin: dbUser.login,
-    });
-
-
-    return res.status(201).json(newComment);
+    return res.status(201).json(findCommentInDb);
 };

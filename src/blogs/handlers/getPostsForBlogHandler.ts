@@ -1,19 +1,20 @@
 import { Request, Response} from 'express';
 import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
-// TODO: переименовать getAllPostForBlogs → getPostsByBlogIdHandler
-export async function getAllPostForBlogs(req: Request, res: Response ) {
-    const blog = await blogsQueryRepository.getByIdBlog(req.params.id);
-// TODO: добавить типизацию для req.params.id, req.query и результата
-    if (!blog) {
-        return res.sendStatus(404);
-    }
-// TODO: проверить, что используется корректный репозиторий (postsQueryRepository) логика нарушена я обращаюсь к блогам а не постам
-    const getAllPostsForBlog = await blogsQueryRepository.getAllPostsForBlog(req.params.id , req.query);
-// TODO: убрать лишний if
-    if(getAllPostsForBlog) {
-        res.status(200).send(getAllPostsForBlog)
-    }else {
-        res.sendStatus(404)
-    }
+import {RequestWithParamsAndQuery} from "../../types/requestTypes";
+import {paginationQueryInputModel} from "../../posts/differentModels/paginationQueryInputModel";
+import {blogViewModel} from "../differentModels/blogViewModel";
+import {paginationQueryOutputModel} from "../../paginationEndpoints/paginationQueryOutputModel";
+import {getPaginationFromQuery} from "../../posts/helpers/getPaginationFromQuery";
+import {paginationViewModel} from "../../posts/differentModels/paginationViewModel";
+import {postViewModel} from "../../posts/differentModels/postViewModel";
 
+export async function getPostsByBlogIdHandler(req: RequestWithParamsAndQuery<{ id: string } , paginationQueryInputModel>, res: Response ) {
+    const blog:blogViewModel | null = await blogsQueryRepository.getByIdBlog(req.params.id);
+    if (!blog)return res.sendStatus(404);
+
+    const pagination:paginationQueryOutputModel = getPaginationFromQuery(req.query)
+    const getAllPostsForBlog:paginationViewModel<postViewModel> = await blogsQueryRepository.getAllPostsForBlog(pagination , req.params.id );
+
+
+    res.status(200).send(getAllPostsForBlog)
 }

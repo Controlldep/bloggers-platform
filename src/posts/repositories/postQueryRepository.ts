@@ -1,48 +1,41 @@
 import {postsCollection} from "../../db/mongoDb";
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
+import {mapperPostToViewModel} from "../differentModels/mapperPostToViewModel";
+import {paginationQueryOutputModel} from "../../paginationEndpoints/paginationQueryOutputModel";
 import {postViewModel} from "../differentModels/postViewModel";
-import {paginationQuery} from "../../paginationEndpoints/paginationQuery";
+import {postDbModel} from "../differentModels/postDbModel";
+import {paginationViewModel} from "../differentModels/paginationViewModel";
 
 
 
 export const postQueryRepository = {
 
-    async getPostByID(id:string) {
-        const findPost = await postsCollection.findOne({ _id: new ObjectId(id) });
-        if(!findPost) return null;
-        return postViewModel(findPost);
+    async findPostById(id:string):Promise<postViewModel | null> {
+        const findPostInDb:WithId<postDbModel> | null = await postsCollection.findOne({ _id: new ObjectId(id) });
+
+        if(!findPostInDb) return null;
+
+        return mapperPostToViewModel(findPostInDb);
     },
 
-    async getAllPosts(query: paginationQuery) {
-        const pageNumber = Number(query.pageNumber) || 1;
-        const pageSize = Number(query.pageSize) || 10;
-        const sortBy = query.sortBy || 'createdAt';
-        const sortDirection = query.sortDirection === 'asc' ? 1 : -1;
+    async getAllPosts(pagination: paginationQueryOutputModel , filter: Record<string, any> = {}):Promise<paginationViewModel<postViewModel>> {
 
-        const totalCount = await postsCollection.countDocuments({});
+        const totalCount: number = await postsCollection.countDocuments(filter);
 
-        const items = await postsCollection
-            .find({})
-            .sort({ [sortBy]: sortDirection })
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
+        const items: WithId<postDbModel>[] = await postsCollection
+            .find(filter)
+            .sort({ [pagination.sortBy]: pagination.sortDirection })
+            .skip((pagination.pageNumber - 1) * pagination.pageSize)
+            .limit(pagination.pageSize)
             .toArray();
 
-        const mappedItems = items.map(post => ({
-            id: post._id.toString(),
-            title: post.title,
-            shortDescription: post.shortDescription,
-            content: post.content,
-            blogId: post.blogId,
-            blogName: post.blogName,
-            createdAt: post.createdAt,
-        }));
+        const mappedItems: postViewModel[] = items.map(post=> mapperPostToViewModel(post))
 
         return {
-            pagesCount: Math.ceil(totalCount / pageSize),
+            pagesCount: Math.ceil(totalCount / pagination.pageSize),
             totalCount,
-            page: pageNumber,
-            pageSize,
+            page: pagination.pageNumber,
+            pageSize: pagination.pageSize,
             items: mappedItems,
         };
     },

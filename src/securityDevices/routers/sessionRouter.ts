@@ -5,7 +5,7 @@ import {deleteSessionById} from "../handlers/deleteSessionById";
 import {deleteAllSession} from "../handlers/deleteAllSessions";
 
 
-export const sessionRouter = Router();
+export const sessionRouter:Router = Router();
 
 sessionRouter
     .get('/security/devices' , authRefreshMiddleware , getAllSessions)

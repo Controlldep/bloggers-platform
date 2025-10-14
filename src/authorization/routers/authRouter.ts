@@ -12,7 +12,7 @@ import {logOutHandler} from "../authHandler/logOutHandler";
 import {rateLimitMiddleware, loginLimiter, emailReserndingLimiter} from "../middleware/rateLimitMidlleware";
 
 
-export const authRouter = Router();
+export const authRouter:Router = Router();
 
 authRouter
     .post('/auth/login' , loginLimiter , loginValidation, authHandler)

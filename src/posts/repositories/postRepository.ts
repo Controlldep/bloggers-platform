@@ -1,33 +1,19 @@
-import {postModel} from "../differentModels/postModel";
+import {postDbModel} from "../differentModels/postDbModel";
 import {postsCollection} from "../../db/mongoDb";
-import {ObjectId, WithId} from "mongodb";
-import {blogModel} from "../../blogs/differentModels/blogModel";
+import {DeleteResult, InsertOneResult, ObjectId, WithId} from "mongodb";
+import {blogDbModel} from "../../blogs/differentModels/blogDbModel";
+import {postInputModel} from "../differentModels/postInputModel";
 
 export const  postRepository = {
 
-    async getPostByID(id:string) {
-        const findPost = await postsCollection.findOne({_id: new ObjectId(id)});
-        return findPost;
-    },
+    async createPost(post: postDbModel):Promise<string> {
+        const result: InsertOneResult<postDbModel> = await postsCollection.insertOne(post);
 
-    async createPost(post: postModel , findBlog: WithId<blogModel>) {
-        const createdAt = new Date().toISOString();
-        const createPost: postModel = {
-            title: post.title,
-            shortDescription: post.shortDescription,
-            content: post.content,
-            blogId: findBlog._id.toString(),
-            createdAt,
-            blogName: findBlog.name,
-        };
-
-        const result = await postsCollection.insertOne(createPost);
         return result.insertedId.toString();
     },
 
-
-    async updatePost(id: string, post: postModel , findBlog: blogModel) {
-        const updatePost:postModel | null = await postsCollection.findOneAndUpdate(
+    async updatePost(id: string, post: postInputModel , findBlog: blogDbModel):Promise<postDbModel | null> {
+        const updatePost:postDbModel | null = await postsCollection.findOneAndUpdate(
             { _id: new ObjectId(id) },
             {
                 $set: {
@@ -46,8 +32,8 @@ export const  postRepository = {
         return updatePost;
     },
 
-    async deletePost(id:string) {
-        const deletePost = await postsCollection.deleteOne({_id: new ObjectId(id)});
+    async deletePost(id:string):Promise<boolean> {
+        const deletePost:DeleteResult = await postsCollection.deleteOne({_id: new ObjectId(id)});
 
         return deletePost.deletedCount === 1;
     },

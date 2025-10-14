@@ -1,8 +1,8 @@
 import {Collection, MongoClient, ServerApiVersion} from "mongodb";
-import {postModel} from "../posts/differentModels/postModel";
-import {blogModel} from "../blogs/differentModels/blogModel";
+import {postDbModel} from "../posts/differentModels/postDbModel";
+import {blogDbModel} from "../blogs/differentModels/blogDbModel";
 import {userModel} from "../users/differentModels/userModels";
-import {commentModel} from "../comments/differentModels/commentsModel";
+import {commentDbModel} from "../comments/differentModels/commentsModel";
 import {refreshModel} from "../authorization/differenModels/refreshModel";
 import {sessionModel} from "../securityDevices/models/sessionModel";
 
@@ -23,18 +23,18 @@ const COMMENTS_COLLECTION_NAME = "comments";
 const REFRESHTOKEN_COLLECTION_NAME = "refreshTokens"
 const SESSION_COLLECTION_NAME = "session"
 
-export let postsCollection:Collection<postModel>
-export let blogsCollection:Collection<blogModel>
+export let postsCollection:Collection<postDbModel>
+export let blogsCollection:Collection<blogDbModel>
 export let usersCollection:Collection<userModel>
-export let commentsCollection:Collection<commentModel>
+export let commentsCollection:Collection<commentDbModel>
 export let refreshTokensCollection:Collection<refreshModel>
 export let sessionCollection:Collection<sessionModel>
 
 const db = client.db("bloggers-platform");
 
-postsCollection = db.collection<postModel>(POSTS_COLLECTION_NAME);
-blogsCollection = db.collection<blogModel>(BLOGS_COLLECTION_NAME);
+postsCollection = db.collection<postDbModel>(POSTS_COLLECTION_NAME);
+blogsCollection = db.collection<blogDbModel>(BLOGS_COLLECTION_NAME);
 usersCollection = db.collection<userModel>(USERS_COLLECTION_NAME);
-commentsCollection = db.collection<commentModel>(COMMENTS_COLLECTION_NAME)
+commentsCollection = db.collection<commentDbModel>(COMMENTS_COLLECTION_NAME)
 refreshTokensCollection = db.collection<refreshModel>(REFRESHTOKEN_COLLECTION_NAME)
 sessionCollection = db.collection<sessionModel>(SESSION_COLLECTION_NAME)

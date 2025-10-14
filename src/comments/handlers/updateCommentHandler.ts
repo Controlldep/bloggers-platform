@@ -1,38 +1,17 @@
 import { Request, Response } from "express";
 import {commentsService} from "../service/commentsService";
+import {RequestWithParamsAndBody} from "../../types/requestTypes";
+import {commentDbModel} from "../differentModels/commentsModel";
 
 
-export const updateCommentHandler = async (req: Request, res: Response) => {
-    const id = req.params.id;
-    const userId = req.userId;
-    const { content } = req.body;
+export const updateCommentHandler = async (req: RequestWithParamsAndBody<{ id: string }, { content: string }>, res: Response) => {
+    const comment:commentDbModel|null = await commentsService.getCommentById(req.params.id);
+    if (!comment) return res.sendStatus(404);
 
-    if (!userId) {
-        return res.sendStatus(401);
-    }
+    if (comment.commentatorInfo.userId !== req.userId) return res.sendStatus(403);
 
-
-    const comment = await commentsService.getCommentsById(id);
-    if (!comment) {
-        return res.sendStatus(404);
-    }
-
-    if (comment.commentatorInfo.userId !== userId) {
-        return res.sendStatus(403);
-    }
-
-    if (!content || content.length < 20 || content.length > 300) {
-        return res.status(400).json({
-            errorsMessages: [
-                { message: "Content length must be 20-300 characters", field: "content" },
-            ],
-        });
-    }
-
-    const isUpdated = await commentsService.updateComment(id, content);
-    if (!isUpdated) {
-        return res.sendStatus(404);
-    }
+    const isUpdated:boolean = await commentsService.updateComment(req.params.id, req.body.content);
+    if (!isUpdated) return res.sendStatus(500);
 
     return res.sendStatus(204);
 };

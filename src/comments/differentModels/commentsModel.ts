@@ -1,4 +1,4 @@
-export type commentModel = {
+export type commentDbModel = {
     content: string;
     postId: string;
     commentatorInfo: {

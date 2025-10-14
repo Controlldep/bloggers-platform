@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
 import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
-// TODO: обернуть в try/catch, вернуть 500 при сбое БД
-export async function getAllBlogsHandler(req: Request, res: Response) {
-    // TODO: добавить типизацию для req.query (BlogsQueryParams)
-    // TODO ИЛИ
-    // TODO: передавать req.query напрямую в blogsQueryRepository.getAllBlogs
-    const query = req.query;
-    // TODO: добавить типизацию для возвращаемого результата (PaginationResult<BlogViewModel>)
-    const allBlogs = await blogsQueryRepository.getAllBlogs(query)
-    // TODO: переименовать allBlogs → blogs или blogsResult (для большей читаемости)
-    res.status(200).send(allBlogs);
+import {RequestWithQuery} from "../../types/requestTypes";
+import {paginationQueryInputModel} from "../../posts/differentModels/paginationQueryInputModel";
+import {paginationQueryOutputModel} from "../../paginationEndpoints/paginationQueryOutputModel";
+import {blogViewModel} from "../differentModels/blogViewModel";
+import {getPaginationFromQuery} from "../../posts/helpers/getPaginationFromQuery";
+import {paginationViewModel} from "../../posts/differentModels/paginationViewModel";
+
+export async function getAllBlogsHandler(req: RequestWithQuery<paginationQueryInputModel>, res: Response) {
+    const pagination: paginationQueryOutputModel = getPaginationFromQuery(req.query)
+    const findAllBlogs: paginationViewModel<blogViewModel> = await blogsQueryRepository.getAllBlogs(pagination)
+
+    res.status(200).send(findAllBlogs);
 }

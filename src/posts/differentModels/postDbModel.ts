@@ -1,5 +1,5 @@
 
-export type postModel = {
+export type postDbModel = {
     title: string,
     shortDescription: string,
     content: string,

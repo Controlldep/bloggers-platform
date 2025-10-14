@@ -6,11 +6,13 @@ import {userModel} from "../../users/differentModels/userModels";
 const { v4: uuidv4 } = require("uuid");
 import { add } from "date-fns";
 import {emailService} from "./emailService";
+import {WithId} from "mongodb";
+import {currentUserModel} from "../differenModels/currentUserModel";
 
 export const AuthService = {
 
-    async registerUser(user: userInputModel) {
-        const passwordHash = await bcrypt.hash(user.password, 10);
+    async registerUser(user: userInputModel):Promise<true | null> {
+        const passwordHash:string = await bcrypt.hash(user.password, 10);
 
         function generateConfirmationCode(): string {
             return Math.floor(1000 + Math.random() * 9000).toString();
@@ -24,7 +26,7 @@ export const AuthService = {
             expirationDate: add(new Date(), { minutes: 10}),
             isConfirmed: false
         }
-        const userCreated = await UsersRepository.createUser(createUser);
+        const userCreated:WithId<userModel> | null = await UsersRepository.createUser(createUser);
         if(!userCreated) return null
 
         try {
@@ -61,7 +63,7 @@ export const AuthService = {
     },
 
     async resendRegistrationEmail(email: string) {
-        const user = await UsersRepository.findByLoginOrEmail( undefined , email);
+        const user:WithId<userModel> | null  = await UsersRepository.findByLoginOrEmail( undefined , email);
 
         if (!user) {
             return {
@@ -80,7 +82,7 @@ export const AuthService = {
         }
 
         const newCode = uuidv4();
-        const newExpiration = add(new Date(), {minutes: 10});
+        const newExpiration:Date = add(new Date(), {minutes: 10});
 
         await UsersRepository.updateConfirmation(user._id, newCode, newExpiration);
 
@@ -90,22 +92,19 @@ export const AuthService = {
     },
 
     async authUser (data: authModel) {
-        const user = await UsersRepository.findByLoginOrEmail(data.loginOrEmail , data.loginOrEmail);
+        const user:WithId<userModel> | null = await UsersRepository.findByLoginOrEmail(data.loginOrEmail , data.loginOrEmail);
 
         if(!user) return null;
 
-        const isPasswordValid = await bcrypt.compare(data.password, user.password);
+        const isPasswordValid:boolean = await bcrypt.compare(data.password, user.password);
         if (!isPasswordValid) return null;
 
         return user;
     },
 
-    async meUser(id:string) {
-        const user = await UsersRepository.getUserByID(id);
-
-        if (!user) {
-            return null
-        }
+    async meUser(id:string):Promise<currentUserModel | null> {
+        const user:WithId<userModel> | null = await UsersRepository.getUserByID(id);
+        if (!user) return null
 
         return {
             email: user.email,

@@ -10,7 +10,7 @@ import {RefreshPayload} from "../differenModels/refreshType";
 
 export const jwtService = {
     async createAccessToken(userId: string) {
-        const token = jwt.sign({userId} , settings.JWT_SECRET , {expiresIn: '10s'});
+        const token:string = jwt.sign({userId} , settings.JWT_SECRET , {expiresIn: '10s'});
         return {
             accessToken: token
         }
@@ -19,7 +19,6 @@ export const jwtService = {
     async getUserIdByToken(token: string) {
         try {
             const result: any = jwt.verify(token , settings.JWT_SECRET);
-
             return result.userId;
         }catch (error) {
             return null;
@@ -27,9 +26,9 @@ export const jwtService = {
     },
 
     async createRefreshToken(userId: string , deviceId: string) {
-        const jti = crypto.randomBytes(16).toString('hex');
-        const hashJti = await bcrypt.hash(jti, 10);
-        const refreshToken = jwt.sign({userId ,jti , deviceId} , settings.JWT_SECRET_REFRESH , {expiresIn: '20s'});
+        const jti:string  = crypto.randomBytes(16).toString('hex');
+        const hashJti:string  = await bcrypt.hash(jti, 10);
+        const refreshToken:string  = jwt.sign({userId ,jti , deviceId} , settings.JWT_SECRET_REFRESH , {expiresIn: '20s'});
         const saveToken:refreshModel = {
             userId: userId,
             jtiHash: hashJti,
@@ -55,8 +54,8 @@ export const jwtService = {
         }
     },
 
-    async findToken(userId: string, deviceId: string, jti: string) {
-        const session = await refreshTokenRepositories.findTokenByDevice(userId, deviceId);
+    async findToken(userId: string, deviceId: string, jti: string):Promise<refreshModel | null> {
+        const session:refreshModel | null = await refreshTokenRepositories.findTokenByDevice(userId, deviceId);
         if (!session) return null;
 
         const isValid = await bcrypt.compare(jti, session.jtiHash);
@@ -66,14 +65,13 @@ export const jwtService = {
     },
 
 
-    async updateRefreshToken(userId: string, deviceId: string) {
-        const jti = crypto.randomBytes(16).toString('hex');
-        const hashJti = await bcrypt.hash(jti, 10);
-        const refreshToken = jwt.sign({userId, deviceId, jti}, settings.JWT_SECRET_REFRESH, {expiresIn: '20s'});
-        const decoded = jwt.decode(refreshToken) as { exp: number };
+    async updateRefreshToken(userId: string, deviceId: string):Promise<string> {
+        const jti:string = crypto.randomBytes(16).toString('hex');
+        const hashJti:string = await bcrypt.hash(jti, 10);
+        const refreshToken:string = jwt.sign({userId, deviceId, jti}, settings.JWT_SECRET_REFRESH, {expiresIn: '20s'});
+        const decoded:{ exp: number } = jwt.decode(refreshToken) as { exp: number };
 
-        const updateToken = await refreshTokenRepositories.updateRefreshToken(userId , deviceId , hashJti , decoded.exp);
-        if (!updateToken) return null;
+       await refreshTokenRepositories.updateRefreshToken(userId , deviceId , hashJti , decoded.exp);
 
         return refreshToken
     }

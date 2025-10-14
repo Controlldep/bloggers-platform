@@ -1,36 +1,34 @@
-
-import { paginationQuery } from "../../paginationEndpoints/paginationQuery";
 import { commentsRepository } from "../repositories/commentsRepository";
-import {toCommentViewModel} from "../differentModels/mapperComment"
+import {commentDbModel} from "../differentModels/commentsModel";
 
 export const commentsService = {
-    async getAllCommentsForPost(id: string, query: paginationQuery) {
-        const { totalCount, items, page, pageSize } = await commentsRepository.getAllCommentsForPost(id, query);
 
-        return {
-            pagesCount: Math.ceil(totalCount / pageSize),
-            page,
-            pageSize,
-            totalCount,
-            items: items.map(c => toCommentViewModel(c)),
+    async createComment(id: string, data: string,  userId: string , userLogin: string ):Promise<string | null> {
+        const comment: commentDbModel = {
+            content: data,
+            postId: id,
+            commentatorInfo: {
+                userId: userId,
+                userLogin: userLogin,
+            },
+            createdAt: new Date().toISOString(),
         };
+
+        const createCommentInDb: string  = await commentsRepository.createComment(comment);
+        if(!createCommentInDb) return null
+
+        return createCommentInDb
     },
 
-    async getCommentsById(id: string) {
-        const dbComment = await commentsRepository.getCommentsById(id);
-        return dbComment ? toCommentViewModel(dbComment) : null;
-    },
-
-    async createComment(id: string, data: string, userData: { id: string; userLogin: string }) {
-        const dbComment = await commentsRepository.createComment(id, data, userData);
-        return dbComment ? toCommentViewModel(dbComment) : null;
-    },
-
-    async updateComment(id: string, data: string) {
+    async updateComment(id: string, data: string):Promise<boolean> {
         return commentsRepository.updateComment(id, data);
     },
 
-    async deleteComment(id: string) {
+    async deleteComment(id: string):Promise<boolean> {
         return commentsRepository.deleteComment(id);
     },
+
+    async getCommentById(id:string):Promise<commentDbModel|null> {
+        return commentsRepository.getCommentById(id)
+    }
 };
