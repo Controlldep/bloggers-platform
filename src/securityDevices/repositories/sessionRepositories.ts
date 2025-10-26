@@ -1,7 +1,6 @@
 import {sessionCollection} from "../../db/mongoDb";
 import {sessionModel} from "../models/sessionModel";
 import {WithId} from "mongodb";
-import {sessionViewModel} from "../models/sessionViewModel";
 
 
 export const sessionRepositories = {

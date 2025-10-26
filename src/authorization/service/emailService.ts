@@ -9,8 +9,8 @@ export const emailService = {
             port: 465,
             secure: true,
             auth: {
-                user: "afsdfgsdg",
-                pass: "gdsgdsgds"
+                user: "mgdfgdf",
+                pass: "sgfdgfdg"
             },
         });
 
@@ -34,6 +34,34 @@ export const emailService = {
         });
 
         return true;
+    },
+
+    async passwordRecovery(email: string , code: string) {
+        const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+                user: "mgfdgdfg",
+                pass: "sgdfgfdg"
+            },
+        });
+        const html = `
+<h1>Password recovery</h1>
+<p>To finish password recovery, please follow the link below:</p>
+<a href="https://somesite.com/password-recovery?recoveryCode=${code}">Recover password</a>
+<p>If you did not request a password reset, just ignore this email.</p>
+`;
+        await transporter.sendMail({
+            from: `"MyApp" <mixailmar4uk78@gmail.com>`,
+            to: email,
+            subject: "Confirm your registration",
+            text: `Здравствуйте! Вы зарегистрировались в MyApp.
+            Ваш код подтверждения: ${code}.
+            Или перейдите по ссылке: https://ya.ru/?code=${code}
+            Если это были не вы — просто игнорируйте письмо.`,
+            html
+        });
     }
 };
 

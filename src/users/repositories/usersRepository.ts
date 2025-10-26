@@ -107,5 +107,12 @@ export const UsersRepository = {
             { _id: userId },
             { $set: { confirmationCode: code, expirationDate: expirationDate } }
         );
-    }
+    },
+
+    async updatePassword(userId: ObjectId, passwordHash: string) {
+        return usersCollection.updateOne(
+            { _id: userId },
+            { $set: { password: passwordHash } }
+        );
+    },
 }

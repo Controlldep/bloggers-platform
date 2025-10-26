@@ -45,5 +45,13 @@ export const UsersService = {
         }
 
         return findUser;
+    },
+
+    async findUserByEmail(email:string) {
+
+        const findUser = await UsersRepository.findByLoginOrEmail(undefined , email);
+        if(!findUser) return null
+
+        return findUser;
     }
 }

@@ -37,6 +37,7 @@ export const AuthService = {
 
         return true;
     },
+    //TODO вынести все эти проверки в мидлу
     async registrationConfirmationUser(code: string) {
         const user = await UsersRepository.findUserByConfirmationCode(code);
 
@@ -111,6 +112,33 @@ export const AuthService = {
             login: user.login,
             userId: user._id.toString()
         }
+    },
+
+    async passwordRecovery(user: WithId<userModel>):Promise<void> {
+        const newCode = uuidv4();
+        const newExpiration:Date = add(new Date(), {minutes: 10});
+        await UsersRepository.updateConfirmation(user._id, newCode, newExpiration);
+
+        await emailService.passwordRecovery(user.email, newCode);
+    },
+
+    async saveNewPassword(code: string ,password: string) {
+        const findUserInDb:WithId<userModel> | null= await UsersRepository.findUserByConfirmationCode(code)
+        if (!findUserInDb) return { success: false, field: "recoveryCode", message: "Invalid recovery code" }
+        //TODO вынести в хелпер
+        if (findUserInDb.expirationDate! < new Date()) {
+            return { success: false, field: "recoveryCode", message: "Invalid recovery code" };
+        }
+
+        if (password.length < 6 || password.length > 20) {
+            return { success: false, field: "newPassword", message: "Invalid new password format" };
+        }
+        //TODO вынести в хелпер проверку кода
+
+
+        const passwordHash:string = await bcrypt.hash(password, 10);
+       const result = await UsersRepository.updatePassword(findUserInDb._id, passwordHash);
+        return { success: true };
     }
 
 }
