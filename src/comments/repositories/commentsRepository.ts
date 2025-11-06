@@ -1,34 +1,39 @@
-import { commentsCollection } from "../../db/mongoDb";
+import { CommentsCollection } from "../../db/mongoDb";
 import {DeleteResult, InsertOneResult, ObjectId, UpdateResult, WithId} from "mongodb";
 import { commentDbModel } from "../differentModels/commentsModel";
+import {injectable} from "inversify";
 
-export const commentsRepository = {
-    async getCommentById(id: string):Promise<commentDbModel|null>  {
-        return commentsCollection.findOne({ _id: new ObjectId(id) });
-    },
+@injectable()
+export class CommentsRepository {
+    async getCommentById(id: string):Promise<WithId<commentDbModel>|null>  {
+        return CommentsCollection.findOne({ _id: new ObjectId(id) });
+    }
 
     async createComment(comment: commentDbModel):Promise<string>{
-        const result:InsertOneResult<commentDbModel> = await commentsCollection.insertOne(comment);
-
-        return result.insertedId.toString();;
-    },
+        const result:WithId<commentDbModel> = await CommentsCollection.create(comment);
+        return result._id.toString();
+    }
 
     async updateComment(id: string, content: string):Promise<boolean> {
-        const updateResult:UpdateResult<commentDbModel> = await commentsCollection.updateOne(
+        const updateResult:UpdateResult<commentDbModel> = await CommentsCollection.updateOne(
             { _id: new ObjectId(id) },
             { $set: { content } }
         );
 
         return updateResult.modifiedCount === 1;
-    },
+    }
 
     async deleteComment(id: string):Promise<boolean> {
-        const deleteResult:DeleteResult = await commentsCollection.deleteOne({ _id: new ObjectId(id) });
+        const deleteResult:DeleteResult = await CommentsCollection.deleteOne({ _id: new ObjectId(id) });
         return deleteResult.deletedCount === 1;
-    },
+    }
 
-    async deleteAllComments() {
-        const deleteResult = await commentsCollection.deleteMany({});
-        return deleteResult.deletedCount;
-    },
-};
+    async updateLikesInfo(comment:WithId<commentDbModel>) {
+        await CommentsCollection.updateOne(
+            { _id: comment._id },
+            { $set: { likesInfo: comment.likesInfo } } )
+
+         return true
+    }
+
+}

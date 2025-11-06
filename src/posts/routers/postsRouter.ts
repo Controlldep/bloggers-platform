@@ -1,24 +1,24 @@
 import {Router} from "express";
-import {getAllPostsHandler} from "../handlers/getAllPostsHandler";
-import {createPostHandler} from "../handlers/createPostHandler";
-import {getByIdPostHandler} from "../handlers/getByIdPostHandler";
-import {updatePostHandler} from "../handlers/updatePostHandler";
-import {deletePostHandler} from "../handlers/deletePostHandler";
 import {postInputValidation} from "../validation/postValidation.";
 import {baseAuthorization} from "../../authorization/baseAuthorization";
-import {getCommentsByPostHandler} from "../handlers/getAllCommentsForPost";
-import {createCommentForPostHandler} from "../handlers/createCommentsForPost";
 import {authAccessMiddleware} from "../../authorization/middleware/authAccessMiddleware";
 import {commentsValidation} from "../validation/commentsValidation";
+import {PostsController} from "../controllers/postsController";
+import {container} from "../../compositionRoot/compositionRoot";
+import {JwtService} from "../../authorization/service/jwtService";
+import {UsersService} from "../../users/service/userService";
 
+const jwtService = container.get(JwtService);
+const usersService = container.get(UsersService);
+const postsController = container.get(PostsController)
 
 export const postsRouter:Router = Router();
 
 postsRouter
-    .get('/posts' , getAllPostsHandler)
-    .post('/posts' , baseAuthorization , postInputValidation , createPostHandler)
-    .get('/posts/:id' , getByIdPostHandler)
-    .put('/posts/:id' ,baseAuthorization, postInputValidation  , updatePostHandler)
-    .delete('/posts/:id' ,baseAuthorization, deletePostHandler)
-    .get('/posts/:id/comments' , getCommentsByPostHandler)
-    .post('/posts/:id/comments' , authAccessMiddleware , commentsValidation , createCommentForPostHandler)
+    .get('/posts' , postsController.getAllPostsHandler.bind(postsController))
+    .post('/posts' , baseAuthorization , postInputValidation , postsController.createPostHandler.bind(postsController))
+    .get('/posts/:id' , postsController.getByIdPostHandler.bind(postsController))
+    .put('/posts/:id' ,baseAuthorization, postInputValidation  , postsController.updatePostHandler.bind(postsController))
+    .delete('/posts/:id' ,baseAuthorization, postsController.deletePostHandler.bind(postsController))
+    .get('/posts/:id/comments' , postsController.getCommentsByPostHandler.bind(postsController))
+    .post('/posts/:id/comments' , authAccessMiddleware(jwtService , usersService) , commentsValidation , postsController.createCommentForPostHandler.bind(postsController))

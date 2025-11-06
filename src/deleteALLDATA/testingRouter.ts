@@ -1,15 +1,12 @@
 import { Router, Request, Response } from "express";
-import {blogsRepository} from "../blogs/repositories/blogsRepository";
-import {postRepository} from "../posts/repositories/postRepository";
-import {UsersRepository} from "../users/repositories/usersRepository";
-import {commentsRepository} from "../comments/repositories/commentsRepository";
+import {BlogsCollection, CommentsCollection, PostsCollection, UsersCollection} from "../db/mongoDb";
 export const testingRouter = Router();
 
 testingRouter.delete('/testing/all-data', async (req: Request, res: Response) => {
-    await blogsRepository.deleteAllBlogs();
-    await postRepository.deleteAllPost();
-    await UsersRepository.deleteAll();
-    await commentsRepository.deleteAllComments()
+    await BlogsCollection.deleteMany({});
+    await PostsCollection.deleteMany({});
+    await UsersCollection.deleteMany({});
+    await CommentsCollection.deleteMany({});
 
     res.sendStatus(204);
 });

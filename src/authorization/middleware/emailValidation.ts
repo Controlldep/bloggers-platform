@@ -1,9 +1,9 @@
-import { body, validationResult } from "express-validator";
+import { check, validationResult} from "express-validator";
 import {NextFunction , Response , Request} from "express";
 
 
 export const emailValidation = [
-    body("email")
+    check("email")
         .trim()
         .notEmpty()
         .isEmail()
@@ -12,9 +12,9 @@ export const emailValidation = [
     (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            const formattedErrors = errors.array().map(err => ({
+            const formattedErrors = errors.array().map((err: any) => ({
                 message: err.msg,
-                field: (err as any).param
+                field: err.path || err.param
             }));
             return res.status(400).json({ errorsMessages: formattedErrors });
         }

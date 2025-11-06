@@ -1,19 +1,20 @@
 import {postDbModel} from "../differentModels/postDbModel";
-import {postsCollection} from "../../db/mongoDb";
+import {PostsCollection} from "../../db/mongoDb";
 import {DeleteResult, InsertOneResult, ObjectId, WithId} from "mongodb";
 import {blogDbModel} from "../../blogs/differentModels/blogDbModel";
 import {postInputModel} from "../differentModels/postInputModel";
+import {injectable} from "inversify";
 
-export const  postRepository = {
-
+@injectable()
+export class PostRepository {
     async createPost(post: postDbModel):Promise<string> {
-        const result: InsertOneResult<postDbModel> = await postsCollection.insertOne(post);
+        const result:WithId<postDbModel>  = await PostsCollection.create(post);
 
-        return result.insertedId.toString();
-    },
+        return result._id.toString();
+    }
 
     async updatePost(id: string, post: postInputModel , findBlog: blogDbModel):Promise<postDbModel | null> {
-        const updatePost:postDbModel | null = await postsCollection.findOneAndUpdate(
+        const updatePost:postDbModel | null = await PostsCollection.findOneAndUpdate(
             { _id: new ObjectId(id) },
             {
                 $set: {
@@ -30,18 +31,12 @@ export const  postRepository = {
         if (!updatePost) return null;
 
         return updatePost;
-    },
+    }
 
     async deletePost(id:string):Promise<boolean> {
-        const deletePost:DeleteResult = await postsCollection.deleteOne({_id: new ObjectId(id)});
+        const deletePost:DeleteResult = await PostsCollection.deleteOne({_id: new ObjectId(id)});
 
         return deletePost.deletedCount === 1;
-    },
-
-    async deleteAllPost() {
-        const deleteAll = await postsCollection.deleteMany({});
-
-        return deleteAll.deletedCount;
-    },
+    }
 
 }

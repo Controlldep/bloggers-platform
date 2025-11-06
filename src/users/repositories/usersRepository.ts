@@ -2,10 +2,12 @@ import {paginationQuery} from "../differentModels/paginationQuery";
 import {paginationModel} from "../../paginationEndpoints/paginationModel";
 import {userViewModel} from "../differentModels/userViewModel";
 import {userModel} from "../differentModels/userModels";
-import {usersCollection} from "../../db/mongoDb";
+import {UsersCollection} from "../../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
+import {injectable} from "inversify";
 
-export const UsersRepository = {
+@injectable()
+export class UsersRepository  {
 
     async getUsers(query: paginationQuery) {
         const pageNumber = query.pageNumber ? Number(query.pageNumber) : 1;
@@ -26,14 +28,13 @@ export const UsersRepository = {
             filter.email = {$regex: query.searchEmailTerm, $options: 'i'};
         }
 
-        const totalCount = await usersCollection.countDocuments(filter);
+        const totalCount = await UsersCollection.countDocuments(filter);
 
-        const items = await usersCollection
+        const items = await UsersCollection
             .find(filter)
             .sort({[sortBy]: sortDirection})
             .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .toArray();
+            .limit(pageSize);
 
 
         const mappedItems = items.map(user => (userViewModel(user)));
@@ -50,12 +51,12 @@ export const UsersRepository = {
         };
 
         return result;
-    },
+    }
 
     async createUser(user: userModel) {
-        const created = await usersCollection.insertOne(user);
-        return usersCollection.findOne({_id: created.insertedId});
-    },
+        const created = await UsersCollection.create(user);
+        return UsersCollection.findOne({_id: created._id});
+    }
 
     async deleteUser(id: string) {
 
@@ -63,10 +64,10 @@ export const UsersRepository = {
             return false;
         }
 
-        const deleteBlog = await usersCollection.deleteOne({_id: new ObjectId(id)});
+        const deleteBlog = await UsersCollection.deleteOne({_id: new ObjectId(id)});
 
         return deleteBlog.deletedCount === 1;
-    },
+    }
 
     async findByLoginOrEmail(login?: string, email?: string) {
         const filter: any = { $or: [] };
@@ -76,43 +77,37 @@ export const UsersRepository = {
 
         if (filter.$or.length === 0) return null;
 
-        return usersCollection.findOne(filter);
-    },
+        return UsersCollection.findOne(filter);
+    }
 
     async findUserByConfirmationCode(code: string) {
-        return usersCollection.findOne({confirmationCode: code})
-    },
-
-    async deleteAll() {
-        const deletedAll = await usersCollection.deleteMany({});
-
-        return deletedAll.deletedCount;
-    },
+        return UsersCollection.findOne({confirmationCode: code})
+    }
 
     async getUserByID(id: string):Promise<WithId<userModel> | null >{
-        const findUser:WithId<userModel> | null = await usersCollection.findOne({_id: new ObjectId(id)});
+        const findUser:WithId<userModel> | null = await UsersCollection.findOne({_id: new ObjectId(id)});
 
         return findUser;
-    },
+    }
 
     async verifyUser(userId: ObjectId) {
-        return usersCollection.updateOne(
+        return UsersCollection.updateOne(
             {_id: userId},
             {$set: {isConfirmed: true, confirmationCode: null, expirationDate: null}}
         );
 
-    },
+    }
     async updateConfirmation(userId: ObjectId, code: string, expirationDate: Date) {
-        return usersCollection.updateOne(
+        return UsersCollection.updateOne(
             { _id: userId },
             { $set: { confirmationCode: code, expirationDate: expirationDate } }
         );
-    },
+    }
 
     async updatePassword(userId: ObjectId, passwordHash: string) {
-        return usersCollection.updateOne(
+        return UsersCollection.updateOne(
             { _id: userId },
             { $set: { password: passwordHash } }
         );
-    },
+    }
 }

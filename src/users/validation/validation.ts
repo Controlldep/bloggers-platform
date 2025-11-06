@@ -21,6 +21,7 @@ export const userValidation = [
 
     (req: Request, res: Response, next: NextFunction) => {
         const errors = validationResult(req);
+        //TODO сделать валидацию на уникаольность по логину или емейлу
         if (!errors.isEmpty()) {
             const formattedErrors = errors.array().map(err => ({
                 message: err.msg,

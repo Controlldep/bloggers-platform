@@ -1,22 +1,20 @@
 import  {Router} from "express";
-import {getAllBlogsHandler} from "../handlers/getAllBlogsHandler";
-import {createBlogHandler} from "../handlers/createBlogHandler";
-import {getBlogByIdHandler} from "../handlers/getBlogByIdHandler";
-import {updateBlogHandler} from "../handlers/updateBlogHandler";
-import {deleteBlogHandler} from "../handlers/deleteBlogHandler";
 import {blogsInputValidation} from "../validation/blogValidation";
 import {baseAuthorization} from "../../authorization/baseAuthorization";
-import {createPostForBlogHandler} from "../handlers/createPostForBlogsHandler";
-import {getPostsByBlogIdHandler} from "../handlers/getPostsForBlogHandler";
 import {postInputValidation} from "../../posts/validation/postValidation.";
+import {BlogController} from "../controllers/blogController";
+import {container} from "../../compositionRoot/compositionRoot";
 
 
-export const blogsRouter = Router();
+const blogController = container.get(BlogController)
+
+export const blogsRouter:Router = Router();
+
 blogsRouter
-    .get('/blogs' , getAllBlogsHandler)
-    .post('/blogs' ,baseAuthorization,blogsInputValidation, createBlogHandler)
-    .get('/blogs/:id' , getBlogByIdHandler)
-    .put('/blogs/:id' ,baseAuthorization ,blogsInputValidation ,updateBlogHandler)
-    .delete('/blogs/:id' ,baseAuthorization, deleteBlogHandler)
-    .get('/blogs/:id/posts' , getPostsByBlogIdHandler)
-    .post('/blogs/:id/posts' ,baseAuthorization , postInputValidation ,createPostForBlogHandler)
+    .get('/blogs' , blogController.getAllBlogsHandler.bind(blogController))
+    .post('/blogs' ,baseAuthorization,blogsInputValidation, blogController.createBlogHandler.bind(blogController))
+    .get('/blogs/:id' , blogController.getBlogByIdHandler.bind(blogController))
+    .put('/blogs/:id' ,baseAuthorization ,blogsInputValidation , blogController.updateBlogHandler.bind(blogController))
+    .delete('/blogs/:id' ,baseAuthorization, blogController.deleteBlogHandler.bind(blogController))
+    .get('/blogs/:id/posts' , blogController.getPostsByBlogIdHandler.bind(blogController))
+    .post('/blogs/:id/posts' ,baseAuthorization , postInputValidation , blogController.createPostForBlogHandler.bind(blogController))

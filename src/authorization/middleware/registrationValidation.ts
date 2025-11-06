@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { UsersRepository } from "../../users/repositories/usersRepository";
 import {check, validationResult} from "express-validator";
 
 export const registrationValidation = [
@@ -14,31 +13,15 @@ export const registrationValidation = [
     check('email')
         .isEmail().withMessage('Invalid email format'),
 
-    async (req: Request, res: Response, next: NextFunction) => {
-        const result = validationResult(req);
-
-        const errorsMessages = result.array({ onlyFirstError: true }).map(e => ({
-            message: e.msg,
-            field: (e as any).path
-        }));
-
-
-        const hasFieldError = (field: string) => errorsMessages.some(e => e.field === field);
-
-        if (!hasFieldError('login')) {
-            const userByLogin = await UsersRepository.findByLoginOrEmail(req.body.login, undefined);
-            if (userByLogin) errorsMessages.push({ message: 'Login already exists', field: 'login' });
+    (req: Request, res: Response, next: NextFunction) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const formattedErrors = errors.array().map((err: any) => ({
+                message: err.msg,
+                field: err.path || err.param
+            }));
+            return res.status(400).json({ errorsMessages: formattedErrors });
         }
-
-        if (!hasFieldError('email')) {
-            const userByEmail = await UsersRepository.findByLoginOrEmail(undefined, req.body.email);
-            if (userByEmail) errorsMessages.push({ message: 'Email already exists', field: 'email' });
-        }
-
-        if (errorsMessages.length > 0) {
-            return res.status(400).json({ errorsMessages });
-        }
-
         next();
     }
 ];

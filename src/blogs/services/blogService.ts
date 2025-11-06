@@ -1,16 +1,22 @@
-import {blogsRepository} from "../repositories/blogsRepository";
+import {BlogsRepository} from "../repositories/blogsRepository";
 import {blogDbModel} from "../differentModels/blogDbModel";
 import {blogInputModel} from "../differentModels/blogInputModel";
 import { WithId} from "mongodb";
 import {postDbModel} from "../../posts/differentModels/postDbModel";
-import {postRepository} from "../../posts/repositories/postRepository";
+import {PostRepository} from "../../posts/repositories/postRepository";
+import {inject, injectable} from "inversify";
 
+@injectable()
+export class BlogsService {
+    constructor(
+        @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+        @inject(PostRepository) protected postRepository: PostRepository,
+    ) {}
 
-export const  blogsService = {
     async findBlogById(id: string):Promise<WithId<blogDbModel> | null> {
-        const findBlogInDb:WithId<blogDbModel> | null = await blogsRepository.getBlogById(id)
+        const findBlogInDb:WithId<blogDbModel> | null = await this.blogsRepository.getBlogById(id)
         return findBlogInDb
-    },
+    }
 
     async createBlog(blog: blogInputModel):Promise<string> {
         const createBlog:blogDbModel = {
@@ -21,13 +27,13 @@ export const  blogsService = {
             isMembership: false,
         }
 
-        const saveBlogInDb:string | null = await blogsRepository.createBlog(createBlog);
+        const saveBlogInDb:string | null = await this.blogsRepository.createBlog(createBlog);
 
         return saveBlogInDb;
-    },
+    }
 
     async createPostForBlog(id: string  , data:any):Promise<string | null> {
-        const findBlog:WithId<blogDbModel> | null = await blogsRepository.getBlogById(id);
+        const findBlog:WithId<blogDbModel> | null = await this.blogsRepository.getBlogById(id);
         if(!findBlog) return null;
 
         const createdAt:string = new Date().toISOString();
@@ -40,21 +46,22 @@ export const  blogsService = {
             blogName: findBlog.name,
         };
 
-        const createPost:string | null = await postRepository.createPost(createPostForBlog);
+        const createPost:string | null = await this.postRepository.createPost(createPostForBlog);
 
         return createPost;
-    },
+    }
 
     async updateBlog(id: string, data: Partial<blogDbModel>):Promise<boolean>  {
-        const updateBlog:boolean = await blogsRepository.updateBlog(id , data);
+        const updateBlog:boolean = await this.blogsRepository.updateBlog(id , data);
 
+//TODO реализовать обновление данных во всех постах если меняется блог нейм
         return updateBlog;
-    },
+    }
 
     async deleteBlogById(id:string):Promise<boolean> {
-        const deleteBlog:boolean = await blogsRepository.deleteBlogById(id);
+        const deleteBlog:boolean = await this.blogsRepository.deleteBlogById(id);
 
         return deleteBlog;
-    },
+    }
 
 }

@@ -1,16 +1,21 @@
-
-import {postRepository} from "../repositories/postRepository";
+import {PostRepository} from "../repositories/postRepository";
 import {postDbModel} from "../differentModels/postDbModel";
-import {blogsRepository} from "../../blogs/repositories/blogsRepository";
+import {BlogsRepository} from "../../blogs/repositories/blogsRepository";
 import {postInputModel} from "../differentModels/postInputModel";
 import {blogDbModel} from "../../blogs/differentModels/blogDbModel";
 import {WithId} from "mongodb";
+import {inject, injectable} from "inversify";
 
+@injectable()
+export class PostsService {
 
-export const  postsService = {
+    constructor(
+        @inject(PostRepository) protected postRepository: PostRepository,
+        @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+    ) {}
 
     async createPost(post: postInputModel):Promise<string | null> {
-        const findBlog:WithId<blogDbModel> | null= await blogsRepository.getBlogById(post.blogId);
+        const findBlog:WithId<blogDbModel> | null= await this.blogsRepository.getBlogById(post.blogId);
         if(!findBlog) return null;
 
         const createPost: postDbModel = {
@@ -22,24 +27,24 @@ export const  postsService = {
             blogName: findBlog.name,
         };
 
-        const saveInDbPost: string = await postRepository.createPost(createPost);
+        const saveInDbPost: string = await this.postRepository.createPost(createPost);
         return saveInDbPost;
-    },
+    }
 
     async updatePost(id: string, post: postInputModel):Promise<postDbModel | null> {
-        const findBlog:WithId<blogDbModel> | null = await blogsRepository.getBlogById(post.blogId);
+        const findBlog:WithId<blogDbModel> | null = await this.blogsRepository.getBlogById(post.blogId);
 
         if (!findBlog) return null;
 
-        const updatePost:postDbModel | null = await postRepository.updatePost(id, post , findBlog);
+        const updatePost:postDbModel | null = await this.postRepository.updatePost(id, post , findBlog);
 
         return updatePost;
-    },
+    }
 
     async deletePost(id:string):Promise<boolean> {
-        const deletePost:boolean = await postRepository.deletePost(id);
+        const deletePost:boolean = await this.postRepository.deletePost(id);
 
         return deletePost;
-    },
+    }
 
 }

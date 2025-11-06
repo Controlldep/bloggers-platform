@@ -1,16 +1,16 @@
 import nodemailer from "nodemailer";
+import {injectable} from "inversify";
 
-
-export const emailService = {
-
+@injectable()
+export class EmailService {
     async sendRegistrationEmail(email: string, code: string) {
         const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 465,
             secure: true,
             auth: {
-                user: "mgdfgdf",
-                pass: "sgfdgfdg"
+                user: "mhggfh",
+                pass: "shgfhgfh"
             },
         });
 
@@ -34,7 +34,7 @@ export const emailService = {
         });
 
         return true;
-    },
+    }
 
     async passwordRecovery(email: string , code: string) {
         const transporter = nodemailer.createTransport({
@@ -42,8 +42,8 @@ export const emailService = {
             port: 465,
             secure: true,
             auth: {
-                user: "mgfdgdfg",
-                pass: "sgdfgfdg"
+                user: "mhfghfgh",
+                pass: "sxhfghgfh"
             },
         });
         const html = `
@@ -63,5 +63,5 @@ export const emailService = {
             html
         });
     }
-};
+}
 

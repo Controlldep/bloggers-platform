@@ -5,11 +5,18 @@ import {userInputModel} from "../../users/differentModels/userInputModel";
 import {userModel} from "../../users/differentModels/userModels";
 const { v4: uuidv4 } = require("uuid");
 import { add } from "date-fns";
-import {emailService} from "./emailService";
+import {EmailService} from "./emailService";
 import {WithId} from "mongodb";
 import {currentUserModel} from "../differenModels/currentUserModel";
+import {inject, injectable} from "inversify";
 
-export const AuthService = {
+@injectable()
+export class AuthService  {
+
+    constructor(
+        @inject(UsersRepository) protected usersRepository: UsersRepository,
+        @inject(EmailService) protected emailService: EmailService,
+    ) {}
 
     async registerUser(user: userInputModel):Promise<true | null> {
         const passwordHash:string = await bcrypt.hash(user.password, 10);
@@ -26,20 +33,20 @@ export const AuthService = {
             expirationDate: add(new Date(), { minutes: 10}),
             isConfirmed: false
         }
-        const userCreated:WithId<userModel> | null = await UsersRepository.createUser(createUser);
+        const userCreated:WithId<userModel> | null = await this.usersRepository.createUser(createUser);
         if(!userCreated) return null
 
         try {
-            emailService.sendRegistrationEmail(userCreated.email, userCreated.confirmationCode!);
+            this.emailService.sendRegistrationEmail(userCreated.email, userCreated.confirmationCode!);
         } catch (e) {
             console.log(e);
         }
 
         return true;
-    },
+    }
     //TODO вынести все эти проверки в мидлу
     async registrationConfirmationUser(code: string) {
-        const user = await UsersRepository.findUserByConfirmationCode(code);
+        const user = await this.usersRepository.findUserByConfirmationCode(code);
 
         if (!user) {
             return {
@@ -59,12 +66,12 @@ export const AuthService = {
             };
         }
 
-        await UsersRepository.verifyUser(user._id);
+        await this.usersRepository.verifyUser(user._id);
         return true;
-    },
+    }
 
     async resendRegistrationEmail(email: string) {
-        const user:WithId<userModel> | null  = await UsersRepository.findByLoginOrEmail( undefined , email);
+        const user:WithId<userModel> | null  = await this.usersRepository.findByLoginOrEmail( undefined , email);
 
         if (!user) {
             return {
@@ -85,15 +92,15 @@ export const AuthService = {
         const newCode = uuidv4();
         const newExpiration:Date = add(new Date(), {minutes: 10});
 
-        await UsersRepository.updateConfirmation(user._id, newCode, newExpiration);
+        await this.usersRepository.updateConfirmation(user._id, newCode, newExpiration);
 
-        emailService.sendRegistrationEmail(user.email, newCode);
+        this.emailService.sendRegistrationEmail(user.email, newCode);
 
         return true;
-    },
+    }
 
     async authUser (data: authModel) {
-        const user:WithId<userModel> | null = await UsersRepository.findByLoginOrEmail(data.loginOrEmail , data.loginOrEmail);
+        const user:WithId<userModel> | null = await this.usersRepository.findByLoginOrEmail(data.loginOrEmail , data.loginOrEmail);
 
         if(!user) return null;
 
@@ -101,10 +108,10 @@ export const AuthService = {
         if (!isPasswordValid) return null;
 
         return user;
-    },
+    }
 
     async meUser(id:string):Promise<currentUserModel | null> {
-        const user:WithId<userModel> | null = await UsersRepository.getUserByID(id);
+        const user:WithId<userModel> | null = await this.usersRepository.getUserByID(id);
         if (!user) return null
 
         return {
@@ -112,18 +119,18 @@ export const AuthService = {
             login: user.login,
             userId: user._id.toString()
         }
-    },
+    }
 
     async passwordRecovery(user: WithId<userModel>):Promise<void> {
         const newCode = uuidv4();
         const newExpiration:Date = add(new Date(), {minutes: 10});
-        await UsersRepository.updateConfirmation(user._id, newCode, newExpiration);
+        await this.usersRepository.updateConfirmation(user._id, newCode, newExpiration);
 
-        await emailService.passwordRecovery(user.email, newCode);
-    },
+        await this.emailService.passwordRecovery(user.email, newCode);
+    }
 
     async saveNewPassword(code: string ,password: string) {
-        const findUserInDb:WithId<userModel> | null= await UsersRepository.findUserByConfirmationCode(code)
+        const findUserInDb:WithId<userModel> | null= await this.usersRepository.findUserByConfirmationCode(code)
         if (!findUserInDb) return { success: false, field: "recoveryCode", message: "Invalid recovery code" }
         //TODO вынести в хелпер
         if (findUserInDb.expirationDate! < new Date()) {
@@ -137,7 +144,7 @@ export const AuthService = {
 
 
         const passwordHash:string = await bcrypt.hash(password, 10);
-       const result = await UsersRepository.updatePassword(findUserInDb._id, passwordHash);
+        await this.usersRepository.updatePassword(findUserInDb._id, passwordHash);
         return { success: true };
     }
 
