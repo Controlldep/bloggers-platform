@@ -22,3 +22,4 @@ postsRouter
     .delete('/posts/:id' ,baseAuthorization, postsController.deletePostHandler.bind(postsController))
     .get('/posts/:id/comments' , postsController.getCommentsByPostHandler.bind(postsController))
     .post('/posts/:id/comments' , authAccessMiddleware(jwtService , usersService) , commentsValidation , postsController.createCommentForPostHandler.bind(postsController))
+    .put('/posts/:id/like-status', authAccessMiddleware(jwtService , usersService), postsController.updateLikeStatus.bind(postsController))

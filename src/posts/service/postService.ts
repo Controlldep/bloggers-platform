@@ -25,6 +25,10 @@ export class PostsService {
             blogId: findBlog._id.toString(),
             createdAt: new Date().toISOString(),
             blogName: findBlog.name,
+            extendedLikesInfo: {
+                likesCount: 0,
+                dislikesCount: 0
+            }
         };
 
         const saveInDbPost: string = await this.postRepository.createPost(createPost);
@@ -45,6 +49,12 @@ export class PostsService {
         const deletePost:boolean = await this.postRepository.deletePost(id);
 
         return deletePost;
+    }
+
+    async findPost(id: string) {
+        const findPost:WithId<postDbModel> | null= await this.postRepository.findPost(id);
+
+        return findPost;
     }
 
 }

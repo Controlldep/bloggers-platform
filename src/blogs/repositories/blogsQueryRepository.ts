@@ -20,8 +20,8 @@ export class BlogsQueryRepository {
         return mapBlogToViewModel(findBlog);
     }
 
-    async getAllPostsForBlog(pagination: paginationQueryOutputModel , blogId: string,) {
-        return this.postQueryRepository.getAllPosts(pagination, { blogId })
+    async getAllPostsForBlog(pagination: paginationQueryOutputModel , userId:string | null , blogId: string,) {
+        return this.postQueryRepository.getAllPosts(pagination, userId ,{ blogId })
     }
 
     async getAllBlogs(pagination: paginationQueryOutputModel):Promise<paginationViewModel<blogViewModel>> {

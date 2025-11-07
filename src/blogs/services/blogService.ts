@@ -44,6 +44,10 @@ export class BlogsService {
             blogId: id,
             createdAt,
             blogName: findBlog.name,
+            extendedLikesInfo: {
+                likesCount:  0,
+                dislikesCount: 0,
+            }
         };
 
         const createPost:string | null = await this.postRepository.createPost(createPostForBlog);

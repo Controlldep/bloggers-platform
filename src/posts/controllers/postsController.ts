@@ -22,6 +22,7 @@ import {paginationViewModel} from "../differentModels/paginationViewModel";
 import {postDbModel} from "../differentModels/postDbModel";
 import {inject, injectable} from "inversify";
 import {JwtService} from "../../authorization/service/jwtService";
+import {PostLikeService} from "../../postsLike/service/postLikeService";
 
 
 @injectable()
@@ -34,12 +35,13 @@ export class PostsController {
         @inject(PostQueryRepository) protected postQueryRepository: PostQueryRepository,
         @inject(JwtService) protected jwtService: JwtService,
         @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
+        @inject(PostLikeService) protected postLikeService: PostLikeService
     ) {}
 
     async createCommentForPostHandler(req: RequestWithParamsAndBody<{id: string}, {content: string}>, res: Response){
         const userId:string = req.userId!;
 
-        const findPostInDb:postViewModel | null = await this.postQueryRepository.findPostById(req.params.id);
+        const findPostInDb:postViewModel | null = await this.postQueryRepository.findPostById(req.params.id );
         if (!findPostInDb) return res.sendStatus(404);
 
         const findUserInDb:WithId<userModel> | null = await this.usersService.findUserById(userId);
@@ -88,14 +90,28 @@ export class PostsController {
 
     async getAllPostsHandler(req: RequestWithQuery<paginationQueryInputModel>, res: Response) {
         const pagination: paginationQueryOutputModel = getPaginationFromQuery(req.query)
-        const getPostsWithPagination: paginationViewModel<postViewModel> = await this.postQueryRepository.getAllPosts(pagination);
+        let userId;
+        if(req.headers.authorization){
+            let token = req.headers.authorization.split(" ")[1];
+            userId = await this.jwtService.getUserIdByToken(token);
+        }else{
+            userId = undefined
+        }
+        const getPostsWithPagination: paginationViewModel<postViewModel> = await this.postQueryRepository.getAllPosts(pagination , userId);
 
         res.status(200).send(getPostsWithPagination);
     }
 
     //TODO сделать  мидлевару на проверку айдишки и навесить ее везде
     async getByIdPostHandler(req: RequestWithParams<{ id: string }>, res: Response<postViewModel>) {
-        const findPostByID: postViewModel | null = await this.postQueryRepository.findPostById(req.params.id);
+        let userId;
+        if(req.headers.authorization){
+            let token = req.headers.authorization.split(" ")[1];
+            userId = await this.jwtService.getUserIdByToken(token);
+        }else{
+            userId = undefined
+        }
+        const findPostByID: postViewModel | null = await this.postQueryRepository.findPostById(req.params.id , userId);
 
         if(!findPostByID) return res.sendStatus(404)
 
@@ -110,6 +126,35 @@ export class PostsController {
 
         res.sendStatus(204)
 
+    }
+
+    async updateLikeStatus(req:RequestWithParamsAndBody<{ id: string }, {likeStatus: string }>, res: Response) {
+        const userId: string = req.userId!;
+        const {likeStatus} = req.body;
+        //TODO вынести это отсюда в мидлуху
+        if (!['Like', 'Dislike', "None"].includes(likeStatus)) {
+            return res.status(400).json({
+                errorsMessages: [{
+                    message: 'Invalid status',
+                    field: "likeStatus"
+                }]
+            });
+        }
+
+        const findPost: WithId<postDbModel> | null = await this.postsService.findPost(req.params.id);
+        if (!findPost) return res.sendStatus(404);
+
+        const findUser:WithId<userModel> | null = await this.usersService.findUserById(userId)
+
+        const findUserLikeSchema = await this.postLikeService.checkStatus(userId , findPost._id.toString())
+
+        if(!findUserLikeSchema) {
+            await this.postLikeService.createPostLike(userId , findPost , findUser!.login)
+
+        }
+
+        await this.postLikeService.changeStatus(userId, findPost , likeStatus)
+        return res.sendStatus(204)
     }
 
 }

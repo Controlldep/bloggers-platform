@@ -5,21 +5,50 @@ import {paginationQueryOutputModel} from "../../paginationEndpoints/paginationQu
 import {postViewModel} from "../differentModels/postViewModel";
 import {postDbModel} from "../differentModels/postDbModel";
 import {paginationViewModel} from "../differentModels/paginationViewModel";
-import {injectable} from "inversify";
+import {inject, injectable} from "inversify";
+import {PostLikeRepositories} from "../../postsLike/repositories/postLikeRepositories";
 
 
 @injectable()
 export class PostQueryRepository {
-    async findPostById(id:string):Promise<postViewModel | null> {
+    constructor(
+        @inject(PostLikeRepositories) protected postLikeRepositories: PostLikeRepositories,
+    ) {}
+
+    async findPostById(id:string , userId? : string):Promise<postViewModel | null> {
         const findPostInDb:WithId<postDbModel> | null = await PostsCollection.findOne({ _id: new ObjectId(id) });
-
         if(!findPostInDb) return null;
+        //TODO сделать по нормальному
+        let myStatus
+        let likeStatus
+        if(userId) {
+            likeStatus = await this.postLikeRepositories.checkStatus(userId, findPostInDb._id.toString());
+            myStatus = likeStatus ? likeStatus.myStatus : "None";
+        }else {
+            myStatus = "None"
+        }
+        const findLikesForPost = await this.postLikeRepositories.findAllLikesForPost(id);
 
-        return mapperPostToViewModel(findPostInDb);
+        const post = {
+            id: findPostInDb._id.toString(),
+            title: findPostInDb.title,
+            shortDescription: findPostInDb.shortDescription,
+            content: findPostInDb.content,
+            blogId: findPostInDb.blogId,
+            createdAt: findPostInDb.createdAt,
+            blogName: findPostInDb.blogName,
+            extendedLikesInfo: {
+                likesCount: findPostInDb.extendedLikesInfo.likesCount,
+                dislikesCount: findPostInDb.extendedLikesInfo.dislikesCount,
+                myStatus ,
+                newestLikes: findLikesForPost
+            }
+        }
+        return post
+
     }
 
-    async getAllPosts(pagination: paginationQueryOutputModel , filter: Record<string, any> = {}):Promise<paginationViewModel<postViewModel>> {
-
+    async getAllPosts(pagination: paginationQueryOutputModel, userId: string | null, filter: Record<string, any> = {}): Promise<paginationViewModel<postViewModel>> {
         const totalCount: number = await PostsCollection.countDocuments(filter);
 
         const items: WithId<postDbModel>[] = await PostsCollection
@@ -28,7 +57,28 @@ export class PostQueryRepository {
             .skip((pagination.pageNumber - 1) * pagination.pageSize)
             .limit(pagination.pageSize);
 
-        const mappedItems: postViewModel[] = items.map(post=> mapperPostToViewModel(post))
+        const mappedItems: postViewModel[] = await Promise.all(items.map(async (post) => {
+
+            let myStatus = "None";
+            if (userId) {
+                const likeStatus = await this.postLikeRepositories.checkStatus(userId, post._id.toString());
+                myStatus = likeStatus ? likeStatus.myStatus : "None";
+            }
+
+
+            const newestLikes = await this.postLikeRepositories.findAllLikesForPost(post._id.toString());
+
+
+            const extendedLikesInfo = {
+                likesCount: post.extendedLikesInfo.likesCount,
+                dislikesCount: post.extendedLikesInfo.dislikesCount,
+                myStatus,
+                newestLikes
+            };
+
+
+            return mapperPostToViewModel(post, extendedLikesInfo);
+        }));
 
         return {
             pagesCount: Math.ceil(totalCount / pagination.pageSize),
@@ -38,5 +88,6 @@ export class PostQueryRepository {
             items: mappedItems,
         };
     }
+
 
 }

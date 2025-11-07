@@ -20,6 +20,7 @@ import {paginationQueryOutputModel} from "../../paginationEndpoints/paginationQu
 import {getPaginationFromQuery} from "../../posts/helpers/getPaginationFromQuery";
 import {paginationViewModel} from "../../posts/differentModels/paginationViewModel";
 import {inject, injectable} from "inversify";
+import {JwtService} from "../../authorization/service/jwtService";
 //TODO улучшить структуру папок
 //TODO создать ObjectResult
 //TODO прочитать и запонмит разницу между хешированием шифрованием и кодированием
@@ -31,6 +32,7 @@ export class BlogController {
         @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
         @inject(BlogsService) protected blogsService: BlogsService,
         @inject(PostQueryRepository) protected postQueryRepository: PostQueryRepository,
+        @inject(JwtService) protected jwtService: JwtService,
     ) {}
 
     async createBlogHandler(req: RequestWithBody<blogInputModel>, res: Response ) {
@@ -81,9 +83,15 @@ export class BlogController {
     async getPostsByBlogIdHandler(req: RequestWithParamsAndQuery<{ id: string } , paginationQueryInputModel>, res: Response ) {
         const blog:blogViewModel | null = await this.blogsQueryRepository.getByIdBlog(req.params.id);
         if (!blog)return res.sendStatus(404);
-
+        let userId;
+        if(req.headers.authorization){
+            let token = req.headers.authorization.split(" ")[1];
+            userId = await this.jwtService.getUserIdByToken(token);
+        }else{
+            userId = undefined
+        }
         const pagination:paginationQueryOutputModel = getPaginationFromQuery(req.query)
-        const getAllPostsForBlog:paginationViewModel<postViewModel> = await this.blogsQueryRepository.getAllPostsForBlog(pagination , req.params.id );
+        const getAllPostsForBlog:paginationViewModel<postViewModel> = await this.blogsQueryRepository.getAllPostsForBlog(pagination ,userId, req.params.id );
 
 
         res.status(200).send(getAllPostsForBlog)
