@@ -2,16 +2,21 @@ import {commentDbModel} from "../comments/differentModels/commentsModel";
 import {refreshModel} from "../authorization/differenModels/refreshModel";
 import {sessionModel} from "../securityDevices/models/sessionModel";
 import mongoose, { Schema, model } from 'mongoose';
+import {postDbModel} from "../posts/differentModels/postDbModel";
 
 export const uri = "mongodb+srv://admin:admin@cluster0.0qblhxg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
-const  PostSchema = new Schema({
+const  PostSchema:Schema<postDbModel> = new Schema({
     title: {type: String , required: true},
     shortDescription: {type: String , required: true},
     content: {type: String , required: true},
     blogId: {type: String , required: true},
     createdAt: {type: String , required: true},
     blogName: {type: String , required: true},
+    extendedLikesInfo: {
+        likesCount: {type: Number, default: 0},
+        dislikesCount: {type: Number, default: 0},
+    }
 })
 export const PostsCollection = model('posts', PostSchema);
 //TODO протипизировать схемы
@@ -60,6 +65,16 @@ const LikeSchema = new Schema({
     myStatus: { type: String, enum: ["Like", "Dislike", "None"], default: "None" },
 });
 export const LikesCollection = model("likes", LikeSchema);
+
+
+const PostLikeSchema = new Schema({
+    userId: { type: String, required: true },
+    postId: { type: String, required: true },
+    login: { type: String, required: true },
+    addedAt: { type: String, required: true },
+    myStatus: { type: String, enum: ["Like", "Dislike", "None"], default: "None" },
+});
+export const PostLikesCollection = model("postLikes", PostLikeSchema);
 
 
 const  RefreshSchema:Schema<refreshModel> = new Schema({

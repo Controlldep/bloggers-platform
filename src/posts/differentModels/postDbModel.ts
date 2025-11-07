@@ -5,5 +5,9 @@ export type postDbModel = {
     content: string,
     blogId: string,
     createdAt: string,
-    blogName: string
+    blogName: string,
+    extendedLikesInfo: {
+        likesCount: number;
+        dislikesCount: number;
+    }
 }

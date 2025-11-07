@@ -25,6 +25,8 @@ import {CommentsQueryRepository} from "../comments/repositories/commentsQueryRep
 import {CommentsRepository} from "../comments/repositories/commentsRepository";
 import {LikeCommentsRepository} from "../commentsLike/repositories/likeCommentsRepository";
 import {LikeService} from "../commentsLike/service/likeService";
+import {PostLikeService} from "../postsLike/service/postLikeService";
+import {PostLikeRepositories} from "../postsLike/repositories/postLikeRepositories";
 
 
 export const container:Container = new Container();
@@ -60,3 +62,6 @@ container.bind(CommentsQueryRepository).to(CommentsQueryRepository)
 
 container.bind(LikeService).to(LikeService)
 container.bind(LikeCommentsRepository).to(LikeCommentsRepository)
+
+container.bind(PostLikeService).to(PostLikeService)
+container.bind(PostLikeRepositories).to(PostLikeRepositories)
